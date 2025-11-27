@@ -1,0 +1,20 @@
+{
+    "name": "next-track",
+    "private": true,
+    "type": "module",
+    "scripts": {
+        "dev-server": "nodemon backend/server.js",
+        "prod-server": "node backend/server.js",
+        "create-db": "node db/createDb.js"
+    },
+    "dependencies": {
+        "express": "5.1.0",
+        "pg": "8.16.3",
+        "dotenv": "17.2.3",
+        "pg-upload": "0.0.6"
+
+    },
+    "devDependencies": {
+        "nodemon": "3.1.10"
+    }
+}

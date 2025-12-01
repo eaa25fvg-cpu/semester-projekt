@@ -6,7 +6,7 @@ console.log('Recreating database...');
 const db = await connect();
 
 console.log('Dropping tables...');
-await db.query('drop table if exists tracks, sessions, session_users, user_activity, songs');
+await db.query('drop table if exists tracks, sessions, session_users, user_activity, songs, genre, tempo, mood, activity, genres');
 console.log('All tables dropped.');
 
 console.log('Recreating tables...');
@@ -40,6 +40,35 @@ await db.query(`
 	)
 `);
 
+
+await db.query(`
+	create table genre(
+	genre_id int primary key generated always as identity,
+	genre_name text not null
+	)
+`);
+
+await db.query(`
+	create table tempo(
+	tempo_id int primary key generated always as identity,
+	tempo_name text not null
+	)
+`);
+
+await db.query(`
+	create table activity(
+	activity_id int primary key generated always as identity,
+	activity_name text not null
+	)
+`);
+
+await db.query(`
+	create table mood(
+	mood_id int primary key generated always as identity,
+	mood_name text
+	)
+`);
+
 await db.query(`
 	create table songs(
 	songs_id int primary key generated always as identity,
@@ -47,24 +76,53 @@ await db.query(`
 	artist text not null,
 	cover_image text not null,
 	duration int not null,
-	genre text not null,
-	tempo text not null,
-	activity text not null,
-	mood text not null,
+	genre int not null references genre(genre_id),
+	tempo int not null references tempo(tempo_id),
+	activity int not null references activity(activity_id),
+	mood int not null references mood(mood_id),
 	release_year int not null
 	)
 `);
 
-
 console.log('Tables recreated.');
 
 console.log('Importing data from CSV files...');
-await upload(db, 'db/songs_total_final.csv', `
+
+await upload(db, 'db/genre.csv', `
+	copy genre(genre_name)
+	from stdin
+	with csv header
+	delimiter ';'
+	`);
+
+await upload(db, 'db/activity.csv', `
+	copy activity(activity_name)
+	from stdin
+	with csv header
+	delimiter ';'
+	`);
+
+await upload(db, 'db/mood.csv', `
+	copy mood(mood_name)
+	from stdin
+	with csv header
+	delimiter ';'
+	`);
+
+await upload(db, 'db/tempo.csv', `
+	copy tempo(tempo_name)
+	from stdin
+	with csv header
+	delimiter ';'
+	`);
+
+await upload(db, 'db/songs_final_ID_done.csv', `
 	copy songs (song_name, artist, cover_image, duration, genre, tempo, activity, mood, release_year)
 	from stdin
 	with csv header
 	delimiter ';'
 	`);
+	
 console.log('Data imported.');
 
 /*await upload(db, 'db/short-tracks.csv', `

@@ -93,6 +93,73 @@ body {
     font-size: 16px;
 }
 
+body.joinroom {
+    background-image: url(image22.png);
+    background-size: cover;
+}
+
+.logo-container {
+  text-align: center;
+  padding: 20px 0;
+}
+
+.logo {
+    max-width: 200px;
+    height: auto;
+}
+
+.login-boks {
+    background-color: rgb(26, 26, 26);
+    width: 370px;
+    height: 350px;
+    border-radius: 25px;
+    margin: 80px auto 0 auto;
+    padding-top: 40px;
+
+}
+
+.login-boks h2 {
+  color: white;
+  text-align: center;
+  font-size: 32px;
+  margin: 0px 0 10px 0;
+  font-family: Arial, sans-serif;
+  
+}
+
+.login-boks p {
+  color: #999999; /* Grå tekst */
+  text-align: center;
+  font-size: 16px;
+  margin: 0 0 30px 0;
+  font-family: Arial, sans-serif;
+}
+
+.login-boks label {
+    display: block;
+    color: white;
+    font-family: Arial, sans-serif;
+    font-size: 14px;
+    margin: 0 auto 8px 20px;
+    text-align: left;
+}
+
+.login-boks input {
+    width: 280px;
+    padding: 12px;
+    margin: 0 20px auto;
+    display: block;
+    background-color: #2a2a2a;
+    border: none;
+    border-radius: 8px;
+    color: #efeeee;
+    font-family: Arial, sans-serif;
+    font-size: 14px;
+}
+.login-boks input::placeholder {
+    color: #999999;
+}
+
 /* Lobby Styles */
 .content {
     display: flex;

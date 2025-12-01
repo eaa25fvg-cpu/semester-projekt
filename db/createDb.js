@@ -63,6 +63,7 @@ await upload(db, 'db/songs_total_final.csv', `
 	copy songs (song_name, artist, cover_image, duration, genre, tempo, activity, mood, release_year)
 	from stdin
 	with csv header
+	delimiter ';'
 	`);
 console.log('Data imported.');
 

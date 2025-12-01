@@ -50,7 +50,8 @@ await db.query(`
 	genre text not null,
 	tempo text not null,
 	activity text not null,
-	mood text not null
+	mood text not null,
+	release_year int not null
 	)
 `);
 

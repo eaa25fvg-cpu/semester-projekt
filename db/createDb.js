@@ -58,8 +58,15 @@ await db.query(`
 
 console.log('Tables recreated.');
 
-/*console.log('Importing data from CSV files...');
-await upload(db, 'db/short-tracks.csv', `
+console.log('Importing data from CSV files...');
+await upload(db, 'db/songs_total_final.csv', `
+	copy songs (song_name, artist, cover_image, duration, genre, tempo, activity, mood, release_year)
+	from stdin
+	with csv header
+	`);
+console.log('Data imported.');
+
+/*await upload(db, 'db/short-tracks.csv', `
 	copy tracks (track_id, title, artist, duration)
 	from stdin
 	with csv header`);

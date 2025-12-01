@@ -1,6 +1,118 @@
-body {
-    background-color: #333;
-    color: #ccc;
-    font-family: monospace;
+/* General Styles */
+
+p,h1,h2,h3,h4 {
+    margin: 0px;
+}
+
+h2 {
+    font-weight: 600;
+    font-size: 24px;
+    line-height: normal;
+}
+
+p {
+    font-weight: 500;
     font-size: 16px;
+    line-height: 22px;
+}
+
+.primary {
+    font-weight: 600;
+    font-size: 16px;
+}
+
+.secondary {
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--Secondary, rgba(255, 255, 255, 0.60));
+}
+
+
+body {
+    display: flex;
+    flex-direction: column;
+    font-family: "Inter", sans-serif;
+    background-color: #101010;
+    color: #fff;
+    margin: 0px;
+    height: 100vh
+}
+
+
+.primary-btn {
+    cursor: pointer;
+    display: flex;
+    padding: 14px 28px;
+    justify-content: center;
+    align-items: center;
+    gap: 8px;
+    border-radius: 9999px;
+    border: 1px solid rgba(255, 255, 255, 0.10);
+    background-color: var(--Brand, #2E6CF5);
+    transition: background-color 200ms ease;
+}
+
+.primary-btn:hover {
+    background-color: #275CD0;
+}
+
+
+.secondary-btn {
+    cursor: pointer;
+    display: flex;
+    padding: 12px 24px;
+    justify-content: center;
+    align-items: center;
+    gap: 8px;
+    border-radius: 99px;
+    border: 1px solid rgba(255, 255, 255, 0.10);
+    background: rgba(255, 255, 255, 0.15);
+    transition: background-color 200ms ease;
+}
+
+.secondary-btn:hover {
+    background: rgba(255, 255, 255, 0.25);
+}
+
+/* Header Styles */
+.header {
+    display: flex;
+    justify-content: space-between;
+    padding: 22px 32px;
+    align-items: center;
+    border-bottom: 2px solid rgba(255, 255, 255, 0.10);
+}
+
+.left-inner {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.left-inner .text-wrapper p {
+    font-size: 16px;
+}
+
+/* Lobby Styles */
+.content {
+    display: flex;
+    flex: 1 0 0;
+}
+
+.content .left {
+    border-right: 2px solid rgba(255, 255, 255, 0.10);
+    flex: 1 0 0;
+}
+
+.cover {
+    border-radius: 24px;
+}
+
+.content .right {
+    width: 360px;
+}
+
+.footer {
+    border-top: 2px solid rgba(255, 255, 255, 0.10);
+    height: 100px
 }

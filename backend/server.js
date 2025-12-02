@@ -16,6 +16,7 @@ server.use(express.json());
 server.use(onEachRequest);
 server.post('/api/create-party', onCreateParty)
 server.get('/api/party/:partyCode/currentTrack', onGetCurrentTrackAtParty);
+server.post('/api/:room_id/createUser', onCreateUser);
 server.get(/\/[a-zA-Z0-9-_/]+/, onFallback); // serve index.html on any other simple path
 server.listen(port, onServerReady);
 
@@ -56,23 +57,4 @@ function pickNextTrackFor(partyCode) {
     const track = tracks[trackIndex];
     play(partyCode, track.track_id, track.duration, Date.now(), () => currentTracks.delete(partyCode));
     return trackIndex;
-}
-
-
-async function onCreateParty(request, response) {
-    const roomName = request.body.roomName;
-    const theme = request.body.theme;
-
-    const dbResult = await db.query(
-        `
-        INSERT INTO rooms (room_name, room_theme)
-        VALUES ($1, $2)
-        RETURNING room_id;
-        `,
-        [roomName, theme]
-    );
-
-    const newRoomId = dbResult.rows[0].room_id;
-
-    return newRoomId;
 }

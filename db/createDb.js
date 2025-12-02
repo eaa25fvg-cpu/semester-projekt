@@ -122,15 +122,8 @@ await upload(db, 'db/songs_final_ID_done.csv', `
 	with csv header
 	delimiter ';'
 	`);
-	
-console.log('Data imported.');
 
-/*await upload(db, 'db/short-tracks.csv', `
-	copy tracks (track_id, title, artist, duration)
-	from stdin
-	with csv header`);
 console.log('Data imported.');
-*/
 
 await db.end();
 

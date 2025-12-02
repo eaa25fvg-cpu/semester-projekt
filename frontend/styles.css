@@ -10,6 +10,11 @@ h2 {
     line-height: normal;
 }
 
+button {
+    font-weight: 600;
+    font-size: 16px;
+}
+
 p {
     font-weight: 500;
     font-size: 16px;
@@ -39,9 +44,8 @@ body {
 }
 
 
-.primary-btn {
+.brand-btn {
     cursor: pointer;
-    display: flex;
     padding: 14px 28px;
     justify-content: center;
     align-items: center;
@@ -49,11 +53,28 @@ body {
     border-radius: 9999px;
     border: 1px solid rgba(255, 255, 255, 0.10);
     background-color: var(--Brand, #2E6CF5);
+    color: #fff;
+    transition: background-color 200ms ease;
+}
+
+.brand-btn:hover {
+    background-color: #275CD0;
+}
+
+.primary-btn {
+    cursor: pointer;
+    padding: 14px 28px;
+    gap: 8px;
+    border-radius: 9999px;
+    background: #FFF;
+    align-self: stretch;
+    color: #101010;
+    border: none;
     transition: background-color 200ms ease;
 }
 
 .primary-btn:hover {
-    background-color: #275CD0;
+    background: #CCCCCC;
 }
 
 
@@ -100,65 +121,94 @@ body.joinroom {
     background-size: cover;
 }
 
-.logo-container {
-  text-align: center;
-  padding: 20px 0;
-}
-
 .logo {
-    max-width: 200px;
+    max-width: 160px;
     height: auto;
 }
 
+.center-container {
+    display: flex;
+    height: 100vh;
+    flex-direction: column;
+    align-items: center;
+    justify-content: space-between;
+    padding: 32px 0px;
+}
+
 .login-boks {
+    display: flex;
+    flex-direction: column;
+    gap: 42px;
     background-color: rgb(26, 26, 26);
-    width: 370px;
-    height: 350px;
-    border-radius: 25px;
-    margin: 80px auto 0 auto;
-    padding-top: 40px;
-
+    width: 100%;
+    max-width: 400px;
+    padding: 46px 32px;
+    border-radius: 32px;
 }
 
-.login-boks h2 {
-  color: white;
-  text-align: center;
-  font-size: 32px;
-  margin: 0px 0 10px 0;
+.form-header {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    align-items: center;
 }
 
-.login-boks p {
-  color: #999999; /* Grå tekst */
-  text-align: center;
-  font-size: 16px;
-  margin: 0 0 30px 0;
-
+.form-header p{
+    font-size: 16px;
 }
 
-.login-boks label {
-    display: block;
-    color: white;
-    font-size: 14px;
-    margin: 0 auto 8px 20px;
-    text-align: left;
+.input-container {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
 }
 
-.login-boks input {
-    width: 280px;
-    padding: 12px;
-    margin: 0 20px auto;
-    display: block;
-    background-color: #2a2a2a;
+.fields {
+    display: flex;
+    flex-direction: column;
+    gap: 32px;
+}
+
+.input-field {
+    padding: 12px 14px;
+    border-radius: 12px;
+    align-self: stretch;
+    background: rgba(255, 255, 255, 0.06);
     border: none;
-    border-radius: 8px;
-    color: #efeeee;
-    font-family: Arial, sans-serif;
-    font-size: 14px;
-}
-.login-boks input::placeholder {
-    color: #999999;
+    font-size: 16px;
+    line-height: 22px;
+    font-weight: 500;
+    color: #fff;
 }
 
+.input-field:focus {
+    outline: 2px solid #FFF;;
+}
+
+label {
+    font-weight: 600;
+    line-height: 20px;
+    font-size: 14px;
+}
+
+.avatar-container {
+    display: flex;
+    flex-direction: column;
+    align-content: space-between;
+    align-self: stretch;
+    gap: 6px;
+}
+
+.avatar-choice {
+    display: flex;
+    justify-content: space-between;
+    align-self: stretch;
+}
+
+.avatar-img {
+    border-radius: 9999px;
+    cursor: pointer;
+}
 /* Lobby Styles */
 .content {
     display: flex;

@@ -4,18 +4,53 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="styles.css">
+    <title>Join Room</title>
+
 </head>
 <body class="joinroom">
-    <div class="logo-container">
-        <img src="assets/beatbazar-logo.png" class="logo">
-    </div>
-    <div class="login-boks">
-        <h2>Deltag i rum</h2>
-        <p>Udfyld detaljer før du deltager</p>
+    <div class="container">
 
-        <label for="name">Dit Navn</label>
-        <input type="text" id="name" placeholder="F.eks. Marie Jensen">
+        <div class="logo-container">
+            <img src="assets/beatbazar-logo.png" class="logo">
+        </div>
 
+
+        <div class="login-boks">
+            <div><h2>Deltag i rum</h2>
+            <p class="secondary">Udfyld detaljer før du deltager</p>
+            </div>
+
+
+            <div class="name-boks">
+            <label for="name">Dit Navn</label>
+            <input type="text" id="name" placeholder="F.eks. Marie Jensen" autocomplete="name">
+            </div>
+
+            <div class="avatar-section">
+    <p class="avatar-label">
+        Choose an avatar
+    </p>
+
+    <div class="avatar-list"> 
+        <img src="assets/image24.png" class="avatar" data-id="1">
+        <img src="assets/image28.png" class="avatar" data-id="2">
+        <img src="assets/image26.png" class="avatar" data-id="3">
+        <img src="assets/image27.png" class="avatar" data-id="4">
     </div>
+
+    <input type="hidden" id="selected-avatar">
+    </div>
+
+
+            <button class="continue-btn">Continue</button>
+
+        </div>
+
+        <div class="footer-join">
+            <p>Privacy policy Terms and conditions</p>
+        </div>
+    </div>
+
+    <script src="avatar.js"></script>
 </body>
 </html>

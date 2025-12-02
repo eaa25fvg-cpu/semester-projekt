@@ -8,46 +8,39 @@
 
 </head>
 <body class="joinroom">
-    <div class="container">
-
+    <div class="center-container">
         <div class="logo-container">
             <img src="assets/beatbazar-logo.png" class="logo">
         </div>
-
-
         <div class="login-boks">
-            <div><h2>Deltag i rum</h2>
-            <p class="secondary">Udfyld detaljer før du deltager</p>
+            <div class="form-header">
+                <h2>Deltag i rum</h2>
+                <p class="secondary">Udfyld detaljer før du deltager</p>
             </div>
 
+            <div class="fields">
+                <div class="input-container">
+                    <label for="name">Dit Navn</label>
+                    <input class="input-field" type="text" id="name" placeholder="F.eks. Marie Jensen">
+                </div>
 
-            <div class="name-boks">
-            <label for="name">Dit Navn</label>
-            <input type="text" id="name" placeholder="F.eks. Marie Jensen" autocomplete="name">
+                <div class="avatar-container">
+                    <label>Vælg en avatar</label>
+                    <div class="avatar-choice">
+                        <img class="avatar-img" src="/assets/profile-image-man-1.png">
+                        <img class="avatar-img" src="/assets/profile-image-man-2.png">
+                        <img class="avatar-img" src="/assets/profile-image-woman-1.png">
+                        <img class="avatar-img" src="/assets/profile-image-woman-2.png">
+                    </div>
+                </div>
             </div>
 
-            <div class="avatar-section">
-    <p class="avatar-label">
-        Choose an avatar
-    </p>
-
-    <div class="avatar-list"> 
-        <img src="assets/image24.png" class="avatar" data-id="1">
-        <img src="assets/image28.png" class="avatar" data-id="2">
-        <img src="assets/image26.png" class="avatar" data-id="3">
-        <img src="assets/image27.png" class="avatar" data-id="4">
-    </div>
-
-    <input type="hidden" id="selected-avatar">
-    </div>
-
-
-            <button class="continue-btn">Continue</button>
-
+            <button class="primary-btn">Fortsæt</button>
         </div>
-
-        <div class="footer-join">
-            <p>Privacy policy Terms and conditions</p>
+        
+        <div>
+            <span class="secondary" style="text-decoration: underline;">Privatpolitik</span>
+            <span class="secondary" style="text-decoration: underline;">Vilkår og betingelser</span>
         </div>
     </div>
 

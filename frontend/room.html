@@ -20,6 +20,12 @@
       type="text/css"
       href="https://cdn.jsdelivr.net/npm/@phosphor-icons/web@2.1.2/src/fill/style.css"
     />
+
+    <link
+      rel="stylesheet"
+      type="text/css"
+      href="https://cdn.jsdelivr.net/npm/@phosphor-icons/web@2.1.2/src/bold/style.css"
+    />
 </head>
 <body>
 
@@ -36,9 +42,31 @@
 
         <div class="right-inner">
             <div class="listeners"></div>
-            <div class="primary-btn" id="invite-btn">
-                <i class="ph-fill ph-user-plus"></i>
-                <p>Inviter lytter</p>
+            <div class="join-wrapper">
+                <div class="brand-btn" id="invite-btn">
+                    <i class="ph-fill ph-user-plus"></i>
+                    <p>Inviter lytter</p>
+                </div>
+                <div id="join-dropdown" class="dropdown">
+                    <div class="dropdown-header">
+                        <p class="primary">Invite listeners</p>
+                        <p class="secondary">Join via en af 2 metoder</p>
+                    </div>
+
+                    <div class="dropdown-content">
+                        <p>1. Scan QR Kode</p>
+                        <div class="qr-wrapper"></div>
+                    </div>
+
+                    <div class="dropdown-content">
+                        <p>2. Brug Kode</p>
+                        <div class="code-wrapper">
+                            <i class="ph-bold ph-copy"></i>
+                            <p id="join-code">1234</p>
+                        </div>
+                    </div>
+
+                </div>
             </div>
         </div>
     </div>
@@ -49,17 +77,67 @@
             <div class="container">
                 <div class="cover-wrapper">
                     <img class="cover" src="https://i1.sndcdn.com/artworks-000338973915-kzzyns-t500x500.jpg">
+                    <div class="song-wrapper">
+                        <div class="inline-container">
+                            <div>
+                                <h3>Paint it, Black</h3>
+                                <p>The Rolling Stones</p>
+                            </div>
+
+                            <div>
+                                <i class="ph-bold ph-thumbs-up"></i>
+                                <i class="ph-bold ph-thumbs-down"></i>
+                            </div>
+                        </div>
+                        <div class="progress-container">
+                            <div id="progress-bar"></div>
+                            <div id="progress-knob"></div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
-        <div class="container right"></div>
+
+        <div class="container right">
+            <div class="queue">
+                <h3>Kø</h3>
+            </div>
+            <div class="events">
+                <h3>Events</h3>
+            </div>
+
+        </div>
     </div>
 
     <div class="footer">
-
+        <p class="secondary">Jeg ønsker mere:</p>
+        <div class="btn-wrapper">
+            <button class="secondary-btn">Jazz</button>
+            <div id="more-options" class="secondary-btn">
+                <i class="ph-fill ph-dots-three-outline"></i>
+                <p>Flere muligheder</p>
+            </div>
+        </div>
     </div>
 
 
 
+    <script>
+        const trigger = document.getElementById('invite-btn');
+        const dropdown = document.getElementById('join-dropdown');
+
+        // Toggle dropdown on trigger click
+        trigger.addEventListener('click', (e) => {
+        e.stopPropagation(); // Prevent click from bubbling to document
+        dropdown.classList.toggle('open');
+        });
+
+        // Close dropdown when clicking outside
+        document.addEventListener('click', (e) => {
+        if (!dropdown.contains(e.target) && !trigger.contains(e.target)) {
+            dropdown.classList.remove('open');
+        }
+        });
+    </script>
 </body>
 </html>

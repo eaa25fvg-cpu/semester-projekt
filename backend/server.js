@@ -3,18 +3,21 @@ import path from 'path';
 import { connect } from '../db/connect.js';
 import { play } from './player.js';
 
-
 const db = await connect();
+/*
 const tracks = await loadTracks();
 const currentTracks = new Map(); // maps partyCode to index in tracks
-
+*/
 const port = process.env.PORT || 3003;
 const server = express();
 
 server.use(express.static('frontend'));
 server.use(express.json());
 server.use(onEachRequest);
+server.post('/api/create-party', onCreateParty)
+server.post('/api/:room_id/createUser', onCreateUser);
 server.get('/api/party/:partyCode/currentTrack', onGetCurrentTrackAtParty);
+server.post('/api/:room_id/createUser', onCreateUser);
 server.get(/\/[a-zA-Z0-9-_/]+/, onFallback); // serve index.html on any other simple path
 server.listen(port, onServerReady);
 
@@ -55,4 +58,43 @@ function pickNextTrackFor(partyCode) {
     const track = tracks[trackIndex];
     play(partyCode, track.track_id, track.duration, Date.now(), () => currentTracks.delete(partyCode));
     return trackIndex;
+}
+
+async function onCreateUser() {
+    try{
+        const roomId = request.params.room_id;
+        const name = request.body.name;
+        const avatar = request.body.avatar;
+
+        await db.query(`
+            INSERT INTO session_users (name, session_id profile_image)
+            VALUES ($1, $2, $3)
+            RETURNING *
+        `, [name, roomId, avatar]);
+
+        res.status(201).send("User created");
+            
+    } catch (error) {
+        console.error(error);
+        response.status(500).json({error: "Database error"});
+    }
+};
+
+
+async function onCreateParty(request, response) {
+    const roomName = request.body.roomName;
+    const theme = request.body.theme;
+
+    const dbResult = await db.query(
+        `
+        INSERT INTO rooms (room_name, room_theme)
+        VALUES ($1, $2)
+        RETURNING room_id;
+        `,
+        [roomName, theme]
+    );
+
+    const newRoomId = dbResult.rows[0].room_id;
+
+    return newRoomId;
 }

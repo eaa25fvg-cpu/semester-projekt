@@ -4,8 +4,19 @@ function createRoom(name, activity) {
     window.location.href = '/join-room';
 }
 
-function createUser(name, avatar) {
+async function createUser(name, avatar, roomId) {
     // Request to backend to create user
+    const response = await fetch(`/api/${roomId}/createUser`, {
+        method: "POST",
+        headers: {"content-type": "application/json"},
+        body: JSON.stringify({
+            name: name,
+            avatar: avatar
+        })
+    });
+
+    const data = await response.json();
+    console.log("User created:", data)
 }
 
 export async function renderRoom(sessionId, sessionName) {

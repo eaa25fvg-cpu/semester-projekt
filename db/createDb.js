@@ -11,9 +11,17 @@ console.log('All tables dropped.');
 
 console.log('Recreating tables...');
 await db.query(`
+	create table activity(
+	activity_id int primary key generated always as identity,
+	activity_name text not null
+	)
+`);
+
+await db.query(`
     create table sessions (
         sessions_id int primary key generated always as identity,
 	    room_name text not null,
+		room_theme int references activity(activity_id),
 	    current_song int not null,
 	    created_at timestamp not null,
 		updated_at timestamp not null
@@ -52,13 +60,6 @@ await db.query(`
 	create table tempo(
 	tempo_id int primary key generated always as identity,
 	tempo_name text not null
-	)
-`);
-
-await db.query(`
-	create table activity(
-	activity_id int primary key generated always as identity,
-	activity_name text not null
 	)
 `);
 

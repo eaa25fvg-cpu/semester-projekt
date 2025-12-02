@@ -15,6 +15,7 @@ server.use(express.static('frontend'));
 server.use(express.json());
 server.use(onEachRequest);
 server.get('/api/party/:partyCode/currentTrack', onGetCurrentTrackAtParty);
+server.post('/api/:room_id/createUser', onCreateUser);
 server.get(/\/[a-zA-Z0-9-_/]+/, onFallback); // serve index.html on any other simple path
 server.listen(port, onServerReady);
 
@@ -56,3 +57,23 @@ function pickNextTrackFor(partyCode) {
     play(partyCode, track.track_id, track.duration, Date.now(), () => currentTracks.delete(partyCode));
     return trackIndex;
 }
+
+async function onCreateUser() {
+    try{
+        const roomId = request.params.room_id;
+        const name = request.body.name;
+        const avatar = request.body.avatar;
+
+        await db.query(`
+            INSERT INTO session_users (name, session_id profile_image)
+            VALUES ($1, $2, $3)
+            RETURNING *
+        `, [name, roomId, avatar]);
+
+        res.status(201).send("User created");
+            
+    } catch (error) {
+        console.error(error);
+        response.status(500).json({error: "Database error"});
+    }
+};

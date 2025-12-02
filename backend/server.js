@@ -3,11 +3,11 @@ import path from 'path';
 import { connect } from '../db/connect.js';
 import { play } from './player.js';
 
-
 const db = await connect();
+/*
 const tracks = await loadTracks();
 const currentTracks = new Map(); // maps partyCode to index in tracks
-
+*/
 const port = process.env.PORT || 3003;
 const server = express();
 

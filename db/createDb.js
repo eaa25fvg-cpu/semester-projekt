@@ -6,14 +6,14 @@ console.log('Recreating database...');
 const db = await connect();
 
 console.log('Dropping tables...');
-await db.query('drop table if exists tracks, sessions, session_users, user_activity, songs, genre, tempo, mood, activity, genres');
+await db.query('drop table if exists tracks, sessions, session_users, user_activity, songs, genre, tempo, mood, theme, genres');
 console.log('All tables dropped.');
 
 console.log('Recreating tables...');
 await db.query(`
-	create table activity(
-	activity_id int primary key generated always as identity,
-	activity_name text not null
+	create table theme(
+	theme_id int primary key generated always as identity,
+	theme_name text not null
 	)
 `);
 
@@ -21,7 +21,7 @@ await db.query(`
     create table sessions (
         sessions_id int primary key generated always as identity,
 	    room_name text not null,
-		room_theme int references activity(activity_id),
+		room_theme int references theme(theme_id),
 	    current_song int not null,
 	    created_at timestamp not null,
 		updated_at timestamp not null
@@ -43,7 +43,7 @@ await db.query(`
 	user_id int references session_users(session_users_id),
 	genre text not null,
 	tempo text not null,
-	activity text not null,
+	theme text not null,
 	mood text not null
 	)
 `);
@@ -79,7 +79,7 @@ await db.query(`
 	duration int not null,
 	genre int not null references genre(genre_id),
 	tempo int not null references tempo(tempo_id),
-	activity int not null references activity(activity_id),
+	theme int not null references theme(theme_id),
 	mood int not null references mood(mood_id),
 	release_year int not null
 	)
@@ -97,7 +97,7 @@ await upload(db, 'db/genre.csv', `
 	`);
 
 await upload(db, 'db/activity.csv', `
-	copy activity(activity_name)
+	copy theme(theme_name)
 	from stdin
 	with csv header
 	delimiter ';'
@@ -118,7 +118,7 @@ await upload(db, 'db/tempo.csv', `
 	`);
 
 await upload(db, 'db/songs_final_ID_done.csv', `
-	copy songs (song_name, artist, cover_image, duration, genre, tempo, activity, mood, release_year)
+	copy songs (song_name, artist, cover_image, duration, genre, tempo, theme, mood, release_year)
 	from stdin
 	with csv header
 	delimiter ';'

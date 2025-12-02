@@ -18,6 +18,10 @@ server.post('/api/create-party', onCreateParty)
 server.post('/api/:room_id/createUser', onCreateUser);
 server.get('/api/party/:partyCode/currentTrack', onGetCurrentTrackAtParty);
 server.post('/api/:room_id/createUser', onCreateUser);
+server.get('/api/theme', getAllTheme);
+server.get('/api/genre', getAllGenre);
+server.get('/api/tempo', getAllTempo);
+server.get('/api/mood', getAllMood);
 server.get(/\/[a-zA-Z0-9-_/]+/, onFallback); // serve index.html on any other simple path
 server.listen(port, onServerReady);
 
@@ -97,4 +101,24 @@ async function onCreateParty(request, response) {
     const newRoomId = dbResult.rows[0].room_id;
 
     return newRoomId;
+}
+
+async function getAllTheme(request, response) {
+    const result = await db.query("SELECT * FROM theme");
+    response.json(result.rows);
+}
+
+async function getAllGenre(request, response) {
+    const result = await db.query("SELECT * FROM genre");
+    response.json(result.rows);
+}
+
+async function getAllTempo(request, response) {
+    const result = await db.query("SELECT * FROM tempo");
+    response.json(result.rows);
+}
+
+async function getAllMood(request, response) {
+    const result = await db.query("SELECT * FROM mood");
+    response.json(result.rows);
 }

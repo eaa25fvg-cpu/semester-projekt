@@ -77,6 +77,11 @@ body {
     background: #CCCCCC;
 }
 
+.primary-btn:disabled{
+    background: rgba(255, 255, 255, 0.15);
+    color: rgba(255, 255, 255, 0.60);
+    cursor: not-allowed;
+}
 
 .secondary-btn {
     cursor: pointer;
@@ -182,7 +187,7 @@ body.joinroom {
 }
 
 .input-field:focus {
-    outline: 2px solid #FFF;;
+    outline: 2px solid #FFF;
 }
 
 label {
@@ -208,6 +213,10 @@ label {
 .avatar-img {
     border-radius: 9999px;
     cursor: pointer;
+}
+
+.avatar-img.active {
+    outline: 4px solid #FFF;
 }
 /* Lobby Styles */
 .content {

@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="styles.css">
+    <title>BeatBazar - Deltag i party</title>
+    <link rel="icon" type="image/png" href="/assets/beatbazar-favicon.png" />
+
+</head>
+<body class="joinroom">
+    <div class="center-container">
+        <div class="logo-container">
+            <img src="assets/beatbazar-logo.png" class="logo">
+        </div>
+        <div class="login-boks">
+            <div class="form-header">
+                <h2>Deltag i rum</h2>
+                <p class="secondary">Udfyld detaljer før du deltager</p>
+            </div>
+
+            <div class="fields">
+                <div class="input-container">
+                    <label for="name">Dit Navn</label>
+                    <input class="input-field" type="text" id="name" placeholder="F.eks. Marie Jensen" oninput="document.getElementById('btn-join').disabled = !this.value.trim()">
+                </div>
+
+                <div class="avatar-container">
+                    <label>Vælg en avatar</label>
+                    <div class="avatar-choice">
+                        <img class="avatar-img" id="avatar-1" src="/assets/profile-image-man-1.png">
+                        <img class="avatar-img"id="avatar-2" src="/assets/profile-image-man-2.png">
+                        <img class="avatar-img" id="avatar-3" src="/assets/profile-image-woman-1.png">
+                        <img class="avatar-img" id="avatar-4" src="/assets/profile-image-woman-2.png">
+                    </div>
+                </div>
+            </div>
+
+            <button class="primary-btn" id="btn-join" disabled>Fortsæt</button>
+        </div>
+        
+        <div>
+            <span class="secondary" style="text-decoration: underline;">Privatpolitik</span>
+            <span class="secondary" style="text-decoration: underline;">Vilkår og betingelser</span>
+        </div>
+    </div>
+
+
+    <script>
+
+        let chosenAvatar = 'avatar-1';
+        document.getElementById(chosenAvatar).classList.add('active')
+        const avatars = document.querySelectorAll('.avatar-img');
+
+         avatars.forEach(avatar => {
+            avatar.addEventListener('click', () => {
+                console.log('Avatar clicked')
+                // Remove active from all
+                avatars.forEach(a => a.classList.remove('active'));
+
+                // Add active to the clicked one
+                avatar.classList.add('active');
+
+                chosenAvatar = avatar.id
+                console.log(chosenAvatar)
+            });
+        });
+    </script>
+</body>
+</html>

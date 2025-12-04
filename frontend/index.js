@@ -24,6 +24,8 @@ async function createRoom(name, theme) {
     }
 }
 
+
+
 async function createUser(name, avatar, roomId) {
     // Request to backend to create user
     const response = await fetch(`/api/${roomId}/createUser`, {
@@ -40,7 +42,7 @@ async function createUser(name, avatar, roomId) {
 }
 
 export async function renderRoom(sessionId, sessionName) {
-
+    
 }
 
 function userSuggestsAttribute (type, value) {

@@ -10,4 +10,4 @@ window.onload = async function loadThemes() {
         themeSelect.appendChild(option);
     });
     console.log(themes)
-} 
+}

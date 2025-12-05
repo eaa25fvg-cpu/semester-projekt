@@ -1,11 +1,3 @@
-document.getElementById("roomForm").addEventListener("submit", function (e) {
-    e.preventDefault();
-    const name = document.getElementById("room-name").value;
-    const theme = document.getElementById("theme-select").value;
-    createRoom(name, theme);
-    console.log(name + theme);
-  });
-
 async function createRoom(name, theme) {
     try {
         const response = await fetch('/api/create-party', {
@@ -33,10 +25,9 @@ async function createRoom(name, theme) {
 }
 
 
-
 async function createUser(name, avatar, roomId) {
     // Request to backend to create user
-    const response = await fetch(`/api/${roomId}/createUser`, {
+    const response = await fetch(`/api/room/${roomId}/createUser`, {
         method: "POST",
         headers: {"content-type": "application/json"},
         body: JSON.stringify({
@@ -46,7 +37,7 @@ async function createUser(name, avatar, roomId) {
     });
 
     const data = await response.json();
-    console.log("User created:", data)
+    console.log("User created:", data);
 }
 
 /*

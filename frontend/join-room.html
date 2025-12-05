@@ -19,12 +19,13 @@
                 <p class="secondary">Udfyld detaljer før du deltager</p>
             </div>
 
+            <form id="userForm">
             <div class="fields">
                 <div class="input-container">
                     <label for="name">Dit Navn</label>
                     <input class="input-field" type="text" id="name" placeholder="F.eks. Marie Jensen" oninput="document.getElementById('btn-join').disabled = !this.value.trim()">
                 </div>
-
+                
                 <div class="avatar-container">
                     <label>Vælg en avatar</label>
                     <div class="avatar-choice">
@@ -36,9 +37,10 @@
                 </div>
             </div>
 
-            <button class="primary-btn" id="btn-join" disabled>Fortsæt</button>
+            <button class="primary-btn" id="btn-join" type="submit" disabled>Fortsæt</button>
+            </form>
         </div>
-        
+    
         <div>
             <span class="secondary" style="text-decoration: underline;">Privatpolitik</span>
             <span class="secondary" style="text-decoration: underline;">Vilkår og betingelser</span>
@@ -47,9 +49,9 @@
 
 
     <script>
-
-        let chosenAvatar = 'avatar-1';
-        document.getElementById(chosenAvatar).classList.add('active')
+        const defaultAvatar = document.getElementById('avatar-1');
+        const chosenAvatar = {'id': 'avatar-1', 'src': defaultAvatar.src};
+        defaultAvatar.classList.add('active')
         const avatars = document.querySelectorAll('.avatar-img');
 
          avatars.forEach(avatar => {
@@ -61,10 +63,23 @@
                 // Add active to the clicked one
                 avatar.classList.add('active');
 
-                chosenAvatar = avatar.id
+                chosenAvatar.id = avatar.id
+                chosenAvatar.src = avatar.src
                 console.log(chosenAvatar)
             });
         });
     </script>
+    <script src="/index.js"></script>
+    <script>
+        document.getElementById("userForm").addEventListener("submit", function (t) {
+        t.preventDefault();
+        const name = document.getElementById("name").value;
+        const avatar = chosenAvatar.src; 
+        const roomId = window.location.pathname.split('/')[2];
+        console.log(name + avatar + roomId);
+        createUser(name, avatar, roomId);
+        
+    });
+  </script>
 </body>
 </html>

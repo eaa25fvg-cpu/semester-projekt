@@ -16,7 +16,7 @@ server.use(express.json());
 server.use(onEachRequest);
 server.post('/api/create-party', onCreateParty)
 server.get('/api/party/:partyCode/currentTrack', onGetCurrentTrackAtParty);
-// server.post('/api/:room_id/createUser', onCreateUser);
+server.post('/api/room/:room_id/createUser', onCreateUser);
 server.get('/api/theme', getAllTheme);
 server.get('/api/genre', getAllGenre);
 server.get('/api/tempo', getAllTempo);
@@ -64,19 +64,19 @@ function pickNextTrackFor(partyCode) {
 }
 
 
-async function onCreateUser() {
+async function onCreateUser(request, response) {
     try{
         const roomId = request.params.room_id;
         const name = request.body.name;
         const avatar = request.body.avatar;
 
         await db.query(`
-            INSERT INTO session_users (name, session_id profile_image)
+            INSERT INTO session_users (name, session_id, profile_image)
             VALUES ($1, $2, $3)
-            RETURNING *
+            RETURNING name;
         `, [name, roomId, avatar]);
 
-        res.status(201).send("User created");
+        response.json({message: "User created successfully"});
             
     } catch (error) {
         console.error(error);

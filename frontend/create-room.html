@@ -68,7 +68,15 @@
     <script src="index.js"></script>
 
     <script src="ui.js"></script>
-
+    <script>
+      document.getElementById("roomForm").addEventListener("submit", function (e) {
+      e.preventDefault();
+      const name = document.getElementById("room-name").value;
+      const theme = document.getElementById("theme-select").value;
+      createRoom(name, theme);
+      console.log(name + theme);
+    });
+  </script>
 
   </body>
 </html>

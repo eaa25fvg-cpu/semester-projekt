@@ -15,14 +15,13 @@ server.use(express.static('frontend'));
 server.use(express.json());
 server.use(onEachRequest);
 server.post('/api/create-party', onCreateParty)
-server.post('/api/:room_id/createUser', onCreateUser);
 server.get('/api/party/:partyCode/currentTrack', onGetCurrentTrackAtParty);
-server.post('/api/:room_id/createUser', onCreateUser);
+// server.post('/api/:room_id/createUser', onCreateUser);
 server.get('/api/theme', getAllTheme);
 server.get('/api/genre', getAllGenre);
 server.get('/api/tempo', getAllTempo);
 server.get('/api/mood', getAllMood);
-server.get(/\/[a-zA-Z0-9-_/]+/, onFallback); // serve index.html on any other simple path
+// server.get(/\/[a-zA-Z0-9-_/]+/, onFallback); // serve index.html on any other simple path
 server.listen(port, onServerReady);
 
 async function onGetCurrentTrackAtParty(request, response) {
@@ -64,6 +63,7 @@ function pickNextTrackFor(partyCode) {
     return trackIndex;
 }
 
+/*
 async function onCreateUser() {
     try{
         const roomId = request.params.room_id;
@@ -83,24 +83,29 @@ async function onCreateUser() {
         response.status(500).json({error: "Database error"});
     }
 };
-
+*/
 
 async function onCreateParty(request, response) {
-    const roomName = request.body.roomName;
-    const theme = request.body.theme;
+    try {
+        const roomName = request.body.roomName;
+        const theme = request.body.theme;
 
-    const dbResult = await db.query(
-        `
-        INSERT INTO rooms (room_name, room_theme)
-        VALUES ($1, $2)
-        RETURNING room_id;
-        `,
-        [roomName, theme]
-    );
+        const dbResult = await db.query(
+            `
+            INSERT INTO sessions (room_name, room_theme)
+            VALUES ($1, $2)
+            RETURNING sessions_id;
+            `,
+            [roomName, theme]
+        );
 
-    const newRoomId = dbResult.rows[0].room_id;
+        const newRoomId = dbResult.rows[0].sessions_id;
 
-    return newRoomId;
+        response.json({ room_id: newRoomId });
+    } catch (err) {
+        console.error(err);
+        response.status(500).json({ error: "Failed to create room" });
+    }
 }
 
 async function getAllTheme(request, response) {

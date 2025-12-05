@@ -1,3 +1,11 @@
+document.getElementById("roomForm").addEventListener("submit", function (e) {
+    e.preventDefault();
+    const name = document.getElementById("room-name").value;
+    const theme = document.getElementById("theme-select").value;
+    createRoom(name, theme);
+    console.log(name + theme);
+  });
+
 async function createRoom(name, theme) {
     try {
         const response = await fetch('/api/create-party', {
@@ -16,7 +24,7 @@ async function createRoom(name, theme) {
         const roomId = data.room_id;
 
         // Redirect to join-room page
-        window.location.href = `/${roomId}/join-room`;
+        window.location.href = `/room/${roomId}/join-room`;
         
     } catch (error) {
         console.error('Error creating room:', error);
@@ -41,9 +49,11 @@ async function createUser(name, avatar, roomId) {
     console.log("User created:", data)
 }
 
+/*
 export async function renderRoom(sessionId, sessionName) {
     
 }
+*/
 
 function userSuggestsAttribute (type, value) {
     

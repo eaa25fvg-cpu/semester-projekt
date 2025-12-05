@@ -21,7 +21,7 @@ server.get('/api/theme', getAllTheme);
 server.get('/api/genre', getAllGenre);
 server.get('/api/tempo', getAllTempo);
 server.get('/api/mood', getAllMood);
-// server.get(/\/[a-zA-Z0-9-_/]+/, onFallback); // serve index.html on any other simple path
+server.get('/room/:room_id/join-room', onFallback); // serve index.html on any other simple path
 server.listen(port, onServerReady);
 
 async function onGetCurrentTrackAtParty(request, response) {
@@ -40,7 +40,7 @@ function onEachRequest(request, response, next) {
 }
 
 async function onFallback(request, response) {
-    response.sendFile(path.join(import.meta.dirname, '..', 'frontend', 'index.html'));
+    response.sendFile(path.join(import.meta.dirname, '..', 'frontend', 'join-room.html'));
 }
 
 function onServerReady() {
@@ -63,7 +63,7 @@ function pickNextTrackFor(partyCode) {
     return trackIndex;
 }
 
-/*
+
 async function onCreateUser() {
     try{
         const roomId = request.params.room_id;
@@ -83,7 +83,7 @@ async function onCreateUser() {
         response.status(500).json({error: "Database error"});
     }
 };
-*/
+
 
 async function onCreateParty(request, response) {
     try {

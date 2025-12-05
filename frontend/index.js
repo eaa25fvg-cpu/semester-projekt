@@ -37,6 +37,9 @@ async function createUser(name, avatar, roomId) {
     });
 
     const data = await response.json();
+
+    window.location.href = `/room/${roomId}`;
+    
     console.log("User created:", data);
 }
 

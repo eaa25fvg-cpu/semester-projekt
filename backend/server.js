@@ -21,7 +21,8 @@ server.get('/api/theme', getAllTheme);
 server.get('/api/genre', getAllGenre);
 server.get('/api/tempo', getAllTempo);
 server.get('/api/mood', getAllMood);
-server.get('/room/:room_id/join-room', onFallback); // serve index.html on any other simple path
+server.get('/room/:room_id/join-room', redirectJoin);
+server.get('/room/:room_id', redirectRoom);
 server.listen(port, onServerReady);
 
 async function onGetCurrentTrackAtParty(request, response) {
@@ -39,9 +40,14 @@ function onEachRequest(request, response, next) {
     next();
 }
 
-async function onFallback(request, response) {
+async function redirectJoin(request, response) {
     response.sendFile(path.join(import.meta.dirname, '..', 'frontend', 'join-room.html'));
 }
+
+async function redirectRoom(request, response) {
+    response.sendFile(path.join(import.meta.dirname, '..', 'frontend', 'room.html'));
+}
+
 
 function onServerReady() {
     console.log('Webserver running on port', port);

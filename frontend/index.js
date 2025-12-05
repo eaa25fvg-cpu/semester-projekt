@@ -43,11 +43,17 @@ async function createUser(name, avatar, roomId) {
     console.log("User created:", data);
 }
 
-/*
-export async function renderRoom(sessionId, sessionName) {
-    
+
+async function renderRoom(roomId) {
+    const response = await fetch('/api/room/create-party', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ roomName: name, theme: theme })
+    });
 }
-*/
+
 
 function userSuggestsAttribute (type, value) {
     

@@ -14,7 +14,7 @@
       <div class="login-boks">
         <h2>Opret rum</h2>
         <p>Udfyld detaljer før du deltager</p>
-        <form onchange="
+        <form id="roomForm" onchange="
         const room = document.getElementById('room-name').value.trim();
         const theme = document.getElementById('theme-select').value.trim();
         document.getElementById('btn-create').disabled = !(room && theme);
@@ -47,7 +47,9 @@
           onchange="this.style.color='#ffffff'"
           required>
           <option value="" disabled selected>Vælg tema</option>
-          
+          <option value="light">Christmas</option>
+          <option value="dark">Halloween</option>
+          <option value="colorful">Summer</option>
         </select>
       </form>
 
@@ -61,12 +63,13 @@
 
 
     <script src="index.js">
-
+      document.getElementById("roomForm").addEventListener("submit", function (e) {
+      e.preventDefault();
+      const name = document.getElementById("room_name").value;
+      const theme = document.getElementById("theme-select").value;
+      createRoom(name, theme);
+});
     </script>
-    <script>
-      
-    </script>
-    <script src="ui.js"></script>
 
   </body>
 </html>

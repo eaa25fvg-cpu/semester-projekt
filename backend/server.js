@@ -21,6 +21,7 @@ server.get('/api/theme', getAllTheme);
 server.get('/api/genre', getAllGenre);
 server.get('/api/tempo', getAllTempo);
 server.get('/api/mood', getAllMood);
+server.get('/api/songs', getAllSongs);
 // server.get(/\/[a-zA-Z0-9-_/]+/, onFallback); // serve index.html on any other simple path
 server.listen(port, onServerReady);
 
@@ -126,4 +127,32 @@ async function getAllTempo(request, response) {
 async function getAllMood(request, response) {
     const result = await db.query("SELECT * FROM mood");
     response.json(result.rows);
+}
+
+async function getAllSongs(request, response) {
+    try {
+        const result = await db.query(`
+            SELECT
+                songs.songs_id,
+                songs.song_name,
+                songs.artist,
+                songs.cover_image,
+                songs.duration,
+                genre.genre_name as genre,
+                tempo.tempo_name as tempo,
+                theme.theme_name as theme,
+                mood.mood_name as mood,
+                songs.release_year
+            FROM songs
+            JOIN genre ON songs.genre = genre.genre_id
+            JOIN tempo ON songs.tempo = tempo.tempo_id
+            JOIN theme ON songs.theme = theme.theme_id
+            JOIN mood ON songs.mood = mood.mood_id
+
+        `);
+        response.json(result.rows);
+    } catch (error) {
+        console.error(error);
+        response.status(500).json({error: "Database error"});
+    }
 }

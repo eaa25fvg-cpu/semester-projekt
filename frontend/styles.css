@@ -396,3 +396,9 @@ label {
 .code-wrapper:hover {
     background: rgba(255, 255, 255, 0.12);
 }
+
+form {
+    display: flex;
+    flex-direction: column;
+    gap: 32px;
+}

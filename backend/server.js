@@ -16,13 +16,14 @@ server.use(express.json());
 server.use(onEachRequest);
 server.post('/api/create-party', onCreateParty)
 server.get('/api/party/:partyCode/currentTrack', onGetCurrentTrackAtParty);
-// server.post('/api/:room_id/createUser', onCreateUser);
+server.post('/api/room/:room_id/createUser', onCreateUser);
 server.get('/api/theme', getAllTheme);
 server.get('/api/genre', getAllGenre);
 server.get('/api/tempo', getAllTempo);
 server.get('/api/mood', getAllMood);
 server.get('/api/songs', getAllSongs);
-// server.get(/\/[a-zA-Z0-9-_/]+/, onFallback); // serve index.html on any other simple path
+server.get('/room/:room_id/join-room', redirectJoin);
+server.get('/room/:room_id', redirectRoom);
 server.listen(port, onServerReady);
 
 async function onGetCurrentTrackAtParty(request, response) {
@@ -40,9 +41,14 @@ function onEachRequest(request, response, next) {
     next();
 }
 
-async function onFallback(request, response) {
-    response.sendFile(path.join(import.meta.dirname, '..', 'frontend', 'index.html'));
+async function redirectJoin(request, response) {
+    response.sendFile(path.join(import.meta.dirname, '..', 'frontend', 'join-room.html'));
 }
+
+async function redirectRoom(request, response) {
+    response.sendFile(path.join(import.meta.dirname, '..', 'frontend', 'room.html'));
+}
+
 
 function onServerReady() {
     console.log('Webserver running on port', port);
@@ -64,27 +70,27 @@ function pickNextTrackFor(partyCode) {
     return trackIndex;
 }
 
-/*
-async function onCreateUser() {
+
+async function onCreateUser(request, response) {
     try{
         const roomId = request.params.room_id;
         const name = request.body.name;
         const avatar = request.body.avatar;
 
         await db.query(`
-            INSERT INTO session_users (name, session_id profile_image)
+            INSERT INTO session_users (name, session_id, profile_image)
             VALUES ($1, $2, $3)
-            RETURNING *
+            RETURNING name;
         `, [name, roomId, avatar]);
 
-        res.status(201).send("User created");
+        response.json({message: "User created successfully"});
             
     } catch (error) {
         console.error(error);
         response.status(500).json({error: "Database error"});
     }
 };
-*/
+
 
 async function onCreateParty(request, response) {
     try {

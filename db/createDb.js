@@ -22,9 +22,9 @@ await db.query(`
         sessions_id int primary key generated always as identity,
 	    room_name text not null,
 		room_theme int references theme(theme_id),
-	    current_song int not null,
-	    created_at timestamp not null,
-		updated_at timestamp not null
+	    current_song int,
+	    created_at timestamp default current_timestamp not null,
+		updated_at timestamp
     )
 `);
 
@@ -33,7 +33,7 @@ await db.query(`
 		session_users_id int primary key generated always as identity,
 		name text not null,
 		session_id int references sessions(sessions_id),
-		profile_image text not null
+		profile_image text
 	)
 `);
 
@@ -41,10 +41,10 @@ await db.query(`
 	create table user_activity(
 	user_activity_id int primary key generated always as identity,
 	user_id int references session_users(session_users_id),
-	genre text not null,
-	tempo text not null,
-	theme text not null,
-	mood text not null
+	genre text,
+	tempo text,
+	theme text,
+	mood text
 	)
 `);
 
@@ -66,7 +66,7 @@ await db.query(`
 await db.query(`
 	create table mood(
 	mood_id int primary key generated always as identity,
-	mood_name text
+	mood_name text not null
 	)
 `);
 

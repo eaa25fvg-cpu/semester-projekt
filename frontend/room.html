@@ -121,6 +121,12 @@
     </div>
 
 
+    <script src="/index.js"></script>
+
+    <script>
+        const roomId = window.location.pathname.split('/')[2];
+        renderRoom(roomId)
+    </script>
 
     <script>
         const trigger = document.getElementById('invite-btn');

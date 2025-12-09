@@ -402,3 +402,139 @@ form {
     flex-direction: column;
     gap: 32px;
 }
+
+/* Overordnet layout */
+.create-room-container {
+    display: flex;
+    height: 100vh;
+    width: 100%;
+    overflow: hidden; /* Ingen scroll */
+}
+
+
+/* VENSTRE PANEL */
+.left-container {
+    width: 40%;
+    background: #0A0A0A;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center; /* Formularen centreres vertikalt */
+    padding: 20px;
+}
+
+.logo-container {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    margin-bottom: 40px;
+}
+.logo {
+    width: 160px;
+}
+
+
+/* --------------------------------------------- */
+/* RIGHT SIDE — PLAYER MOCKUP LAYOUT + GRADIENT  */
+/* --------------------------------------------- */
+
+/* Højre side */
+.right-container {  
+    width: 60%;
+    padding: 20px;
+    background: linear-gradient(135deg, #6BA3E3, #8EC9F8);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center; /* Mockup og tekst centreres */
+    text-align: center;
+    gap: 24px;
+
+    overflow: hidden; /* Ingen scroll */
+}
+
+/* Player mockup */
+.player-preview img {
+    max-height: 50vh;      /* Må aldrig fylde mere end 50% af skærmen */
+    width: auto;
+    object-fit: contain;
+    border-radius: 15px;
+}
+
+/* Tekstsektion */
+.promo-text {
+    max-width: 600px;
+}
+
+.promo-text h1 {
+    font-size: 36px;
+    font-weight: 700;
+    color: #0C1B33; /* Mørk blå tekst som i design */
+    margin: 0;
+    font-family: 'Inter', sans-serif;
+}
+
+.promo-text p {
+    font-size: 18px;
+    line-height: 28px;
+    color: rgba(0,0,0,0.70);
+    font-weight: 500;
+    margin: 0;
+    font-family: 'Inter', sans-serif;
+}
+
+/* Badges */
+.badges {
+    margin-top: 20px;
+    display: flex;
+    justify-content: center;
+    gap: 22px;
+    flex-wrap: wrap;
+}
+
+.badge {
+    background: white;
+    color: #0C1B33;
+    padding: 12px 22px;
+    border-radius: 50px;
+    font-size: 15px;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    box-shadow: 0 4px 14px rgba(0,0,0,0.12);
+    border: 1px solid rgba(255,255,255,0.7);
+}
+
+/* Badge icons */
+.badge span {
+    font-size: 18px;
+}
+
+/* Optimering til store skærme */
+@media (min-width: 1600px) {
+    .promo-text h1 {
+        font-size: 42px;
+    }
+    .promo-text p {
+        font-size: 20px;
+    }
+}
+
+/* Mobil / lille skærm */
+@media (max-width: 900px) {
+    .right-container {
+        width: 100%;
+        padding: 40px 20px;
+    }
+
+    .player-preview img {
+        max-width: 100%;
+    }
+
+    .promo-text {
+        max-width: 90%;
+    }
+}
+
+

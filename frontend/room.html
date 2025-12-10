@@ -260,10 +260,6 @@ function renderList(type) {
             </div>
         `;
 
-        el.onclick = () => {
-            userSuggestsAttribute(item.type, item.label);
-        };
-
         listContainer.appendChild(el);
     });
 }

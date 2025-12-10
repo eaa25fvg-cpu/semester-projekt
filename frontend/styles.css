@@ -21,6 +21,16 @@ p {
     line-height: 22px;
 }
 
+#qr {
+    min-width: 12ch;
+    margin-top: -8px;
+    margin-right: -10px;
+}
+
+#qr path {
+    fill: #ccc;
+}
+
 .primary {
     font-weight: 600;
     font-size: 16px;

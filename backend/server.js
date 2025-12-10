@@ -2,6 +2,7 @@ import express from 'express';
 import path from 'path';
 import { connect } from '../db/connect.js';
 import { play } from './player.js';
+import { get } from 'http';
 
 const db = await connect();
 /*
@@ -24,6 +25,8 @@ server.get('/api/mood', getAllMood);
 server.get('/api/songs', getAllSongs);
 server.get('/room/:room_id/join-room', redirectJoin);
 server.get('/room/:room_id', renderRoom);
+server.get('/api/next-song/simple/:sessionId', getRandomSongForSession);   
+server.get('/api/next-song/user/:sessionId', getNextSongWithUserActivity);
 server.listen(port, onServerReady);
 
 async function onGetCurrentTrackAtParty(request, response) {
@@ -164,3 +167,162 @@ async function getAllSongs(request, response) {
         response.status(500).json({error: "Database error"});
     }
 }
+
+async function getRandomSongForSession(request, response) {
+    const sessionId = request.params.sessionId;
+
+    try {
+        const result = await db.query(
+            `
+            SELECT
+                so.songs_id,
+                so.song_name,
+                so.artist,
+                so.cover_image,
+                so.duration,
+                g.genre_name,
+                te.tempo_name,
+                mo.mood_name,
+                th.theme_name,
+                so.release_year
+            FROM sessions s
+            JOIN theme th ON s.room_theme = th.theme_id
+            JOIN songs so ON so.theme = th.theme_id
+            JOIN genre g ON so.genre = g.genre_id
+            JOIN tempo te ON so.tempo = te.tempo_id
+            JOIN mood mo ON so.mood = mo.mood_id
+            WHERE s.sessions_id = $1
+            ORDER BY random()
+            LIMIT 1;
+            `,
+            [sessionId]
+        );
+
+        if (result.rows.length === 0) {
+            return response.status(404).json({ error: "Ingen sange med dette tema" });
+        }
+
+        return response.json(result.rows[0]);
+    } catch (error) {
+        console.error("Fejl i getRandomSongForSession:", error);
+        return response.status(500).json({ error: "Serverfejl" });
+    }
+}
+
+
+async function getNextSongWithUserActivity(request, response) {
+    const sessionId = request.params.sessionId;
+
+    try {
+        //
+        // 1. Find sessionens tema
+        //
+        const sessionResult = await db.query(
+            `SELECT room_theme FROM sessions WHERE sessions_id = $1`,
+            [sessionId]
+        );
+
+        if (sessionResult.rows.length === 0) {
+            return res.status(404).json({ error: "Session findes ikke" });
+        }
+
+        const roomTheme = sessionResult.rows[0].room_theme;
+
+
+        //
+        // 2. Hent alle sange som matcher temaet
+        //
+        const songsResult = await db.query(
+            `
+            SELECT
+                so.songs_id,
+                so.song_name,
+                so.artist,
+                g.genre_name,
+                te.tempo_name,
+                mo.mood_name
+            FROM songs so
+            JOIN genre g ON so.genre = g.genre_id
+            JOIN tempo te ON so.tempo = te.tempo_id
+            JOIN mood mo ON so.mood = mo.mood_id
+            WHERE so.theme = $1;
+            `,
+            [roomTheme]
+        );
+
+        const songs = songsResult.rows;
+
+
+        //
+        // 3. Hent alle user_activity for brugerne i sessionen
+        //
+        const activityResult = await db.query(
+            `
+            SELECT ua.genre, ua.tempo, ua.mood
+            FROM user_activity ua
+            JOIN session_users su ON ua.user_id = su.session_users_id
+            WHERE su.session_id = $1;
+            `,
+            [sessionId]
+        );
+
+        const activity = activityResult.rows;
+
+
+        //
+        // 4. Hvis ingen har valgt noget → fallback til random (som step 1)
+        //
+        if (activity.length === 0) {
+            const randomSong = songs[Math.floor(Math.random() * songs.length)];
+            return response.json(randomSong);
+        }
+
+
+        //
+        // 5. Tæl stemmer fra user_activity
+        //
+        const votes = { genre: {}, tempo: {}, mood: {} };
+
+        for (const act of activity) {
+            if (act.genre) votes.genre[act.genre] = (votes.genre[act.genre] || 0) + 1;
+            if (act.tempo) votes.tempo[act.tempo] = (votes.tempo[act.tempo] || 0) + 1;
+            if (act.mood)  votes.mood[act.mood]  = (votes.mood[act.mood]  || 0) + 1;
+        }
+
+
+        //
+        // 6. Beregn score for hver sang
+        //
+        let bestScore = -1;
+        let bestSongs = [];
+
+        for (const song of songs) {
+            let score = 0;
+
+            score += votes.genre[song.genre_name] || 0;
+            score += votes.tempo[song.tempo_name] || 0;
+            score += votes.mood[song.mood_name]   || 0;
+
+            if (score > bestScore) {
+                bestScore = score;
+                bestSongs = [song];
+            } else if (score === bestScore) {
+                bestSongs.push(song);
+            }
+        }
+
+
+        //
+        // 7. Delvist random: vælg tilfældigt mellem topscorerne
+        //
+        const chosen = bestSongs[Math.floor(Math.random() * bestSongs.length)];
+
+        return response.json(chosen);
+
+    } catch (error) {
+        console.error("Fejl i getNextSongWithUserActivity:", error);
+        return response.status(500).json({ error: "Serverfejl" });
+    }
+}
+
+

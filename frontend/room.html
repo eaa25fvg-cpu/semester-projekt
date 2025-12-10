@@ -78,11 +78,12 @@
                 <div class="cover-wrapper">
                     <img class="cover" src="https://i1.sndcdn.com/artworks-000338973915-kzzyns-t500x500.jpg">
                     
+                    <img id="song-cover" class="cover" src="https://i1.sndcdn.com/artworks-000338973915-kzzyns-t500x500.jpg">
                     <div class="song-wrapper">
                         <div class="inline-container">
                             <div>
-                                <h3>Paint it, Black</h3>
-                                <p>The Rolling Stones</p>
+                                <h3 id="song-title">Paint it, Black</h3>
+                                <p id="song-artist">The Rolling Stones</p>
                             </div>
 
                             <div>
@@ -114,14 +115,12 @@
 
         </div>
     </div>
-
+    <br>    
     <div class="footer">
-        <p class="secondary">Jeg ønsker mere:</p>
         <div class="btn-wrapper">
-            <button class="secondary-btn">Jazz</button>
             <div id="more-options" class="secondary-btn">
+                <p>Tryk for at ønske sange</p>
                 <i class="ph-fill ph-dots-three-outline"></i>
-                <p>Flere muligheder</p>
             </div>
         </div>
     </div>
@@ -155,5 +154,145 @@
         }
         });
     </script>
+    <div id="search-modal" class="search-modal hidden">
+    <div class="search-modal-content">
+        <div class="search-header">
+            <input type="text" placeholder="Find what you like" class="search-input">
+        </div>
+
+        <div class="filter-row">
+            <button class="filter-btn active" data-type="all">All</button>
+            <button class="filter-btn" data-type="genres">Genres</button>
+            <button class="filter-btn" data-type="mood">Mood</button>
+            <button class="filter-btn" data-type="tempo">Tempo</button>
+        </div>
+
+
+        <div class="search-list">
+            <div class="search-item">
+                <i class="ph-bold ph-rocket"></i>
+                <div>
+                    <p>High energy</p>
+                    <span>Tempo</span>
+                </div>
+            </div>
+
+            <div class="search-item">
+                <i class="ph-bold ph-smiley"></i>
+                <div>
+                    <p>Uplifting</p>
+                    <span>Mood</span>
+                </div>
+            </div>
+
+            <div class="search-item">
+                <i class="ph-bold ph-music-notes"></i>
+                <div>
+                    <p>Jazz</p>
+                    <span>Genres</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+    const searchModal = document.getElementById("search-modal");
+    const moreOptionsBtn = document.getElementById("more-options");
+
+    // Åbn modal
+    moreOptionsBtn.addEventListener("click", () => {
+        searchModal.classList.remove("hidden");
+    });
+
+    // Luk modal ved klik udenfor indholdet
+    searchModal.addEventListener("click", (e) => {
+        if (e.target === searchModal) {
+            searchModal.classList.add("hidden");
+        }
+    });
+</script>
+<script>
+const listContainer = document.querySelector(".search-list");
+const filterButtons = document.querySelectorAll(".filter-btn");
+
+// Her gemmer vi API-data
+const data = {
+    all: [],
+    tempo: [],
+    mood: [],
+    genres: []
+};
+
+// 1️⃣ Hent alle API-data (kun tempo, mood, genres)
+async function loadAllCategories() {
+    const tempoRes = await fetch("/api/tempo");
+    const tempo = await tempoRes.json();
+    
+    const moodRes = await fetch("/api/mood");
+    const mood = await moodRes.json();
+    
+    const genresRes = await fetch("/api/genre");
+    const genres = await genresRes.json();
+
+
+    // Gem i strukturen
+    data.tempo = tempo.map(x => ({ label: x.tempo_name, type: "Tempo" }));
+    data.mood = mood.map(x => ({ label: x.mood_name, type: "Mood" }));
+    data.genres = genres.map(x => ({ label: x.genre_name, type: "Genres" }));
+
+    // All = alt fra alle kategorier
+    data.all = [
+        ...data.tempo,
+        ...data.mood,
+        ...data.genres
+    ];
+
+    renderList("all");
+};
+
+// 2️⃣ Render funktion — super simpel
+function renderList(type) {
+    listContainer.innerHTML = "";
+
+    const items = data[type];
+
+    items.forEach(item => {
+        const el = document.createElement("div");
+        el.className = "search-item";
+
+        el.innerHTML = `
+            <i class="ph-bold ph-magnifying-glass"></i>
+            <div>
+                <p>${item.label}</p>
+            </div>
+        `;
+
+        listContainer.appendChild(el);
+    });
+}
+
+// 3️⃣ Filter-knap klik
+filterButtons.forEach(btn => {
+    btn.addEventListener("click", () => {
+
+        filterButtons.forEach(b => b.classList.remove("active"));
+        btn.classList.add("active");
+
+        const type = btn.dataset.type; // all, tempo, mood, genres
+        renderList(type);
+    });
+});
+
+// 4️⃣ Hent data når modal åbnes
+document.getElementById("more-options").addEventListener("click", async () => {
+    document.getElementById("search-modal").classList.remove("hidden");
+
+    if (data.all.length === 0) {
+        await loadAllCategories();
+    }
+});
+</script>
+
+
 </body>
 </html>

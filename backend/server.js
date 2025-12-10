@@ -55,8 +55,7 @@ server.get('/api/tempo', getAllTempo);
 server.get('/api/mood', getAllMood);
 server.get('/api/songs', getAllSongs);
 server.get('/room/:room_id/join-room', redirectJoin);
-server.get('/room/:room_id', redirectRoom);
-server.get('/api/next-song/simple/:sessionId', getRandomSongForSession);   
+server.get('/room/:room_id', redirectRoom); 
 server.get('/api/next-song/user/:sessionId', getNextSongWithUserActivity);
 server.listen(port, onServerReady);
 
@@ -135,19 +134,20 @@ async function onCreateParty(request, response) {
     try {
         const roomName = request.body.roomName;
         const theme = request.body.theme;
+        const songObject = await getRandomSong(theme);
 
         const dbResult = await db.query(
             `
-            INSERT INTO sessions (room_name, room_theme)
-            VALUES ($1, $2)
+            INSERT INTO sessions (room_name, room_theme, current_song)
+            VALUES ($1, $2, $3)
             RETURNING sessions_id;
             `,
-            [roomName, theme]
+            [roomName, theme, songObject.songs_id]
         );
 
         const newRoomId = dbResult.rows[0].sessions_id;
 
-        const roomObject = createRoomObject(roomName)
+        const roomObject = createRoomObject(roomName, songObject)
         roomState.set(newRoomId, roomObject)
 
         response.json({ room_id: newRoomId });
@@ -206,17 +206,15 @@ async function getAllSongs(request, response) {
 }
 
 
-function createRoomObject(roomName = "Et Rum") {
+function createRoomObject(roomName = "Et Rum", song = null) {
     return {
       roomName,
       songQueue: [],
-      currentSong: null
+      currentSong: song
     };
   }
   
-async function getRandomSongForSession(request, response) {
-    const sessionId = request.params.sessionId;
-
+  async function getRandomSong(theme) {
     try {
         const result = await db.query(
             `
@@ -230,30 +228,31 @@ async function getRandomSongForSession(request, response) {
                 te.tempo_name,
                 mo.mood_name,
                 th.theme_name,
+                th.theme_id,
                 so.release_year
-            FROM sessions s
-            JOIN theme th ON s.room_theme = th.theme_id
-            JOIN songs so ON so.theme = th.theme_id
+            FROM songs so
+            JOIN theme th ON so.theme = th.theme_id
             JOIN genre g ON so.genre = g.genre_id
             JOIN tempo te ON so.tempo = te.tempo_id
             JOIN mood mo ON so.mood = mo.mood_id
-            WHERE s.sessions_id = $1
+            WHERE th.theme_id = $1
             ORDER BY random()
             LIMIT 1;
             `,
-            [sessionId]
+            [theme]
         );
 
         if (result.rows.length === 0) {
-            return response.status(404).json({ error: "Ingen sange med dette tema" });
+            return null; // No song found for this theme
         }
 
-        return response.json(result.rows[0]);
+        return result.rows[0]; // Return the song data
     } catch (error) {
-        console.error("Fejl i getRandomSongForSession:", error);
-        return response.status(500).json({ error: "Serverfejl" });
+        console.error("Error in getRandomSong:", error);
+        throw error; // Let the calling function handle the error
     }
 }
+
 
 
 async function getNextSongWithUserActivity(request, response) {

@@ -70,6 +70,13 @@ async function renderRoom(roomId) {
         // Update room title
         document.getElementById("room-name").textContent = data.room.roomName;
 
+
+        // Update current song
+        let s = data.room.currentSong
+        document.getElementById("song-cover").src = s.cover_image
+        document.getElementById("song-title").textContent = s.song_name
+        document.getElementById("song-artist").textContent = s.artist
+
     } catch (err) {
       console.error("Failed to load room:", err);
       return null;

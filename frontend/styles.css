@@ -442,7 +442,7 @@ form {
 .right-container {  
     width: 60%;
     padding: 20px;
-    background: linear-gradient(135deg, #6BA3E3, #8EC9F8);
+    background: linear-gradient(5deg, #3873EE 27.65%, #00E1FF 98.4%);
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -496,7 +496,7 @@ form {
     background: white;
     color: #0C1B33;
     padding: 12px 22px;
-    border-radius: 50px;
+    border-radius: 99px;
     font-size: 15px;
     font-weight: 600;
     display: flex;
@@ -504,6 +504,10 @@ form {
     gap: 8px;
     box-shadow: 0 4px 14px rgba(0,0,0,0.12);
     border: 1px solid rgba(255,255,255,0.7);
+    background: rgba(255, 255, 255, 0.30);
+    display: flex;
+    border-color: #143975;
+    box-shadow: #6BA3E3;
 }
 
 /* Badge icons */

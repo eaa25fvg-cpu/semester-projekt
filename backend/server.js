@@ -23,7 +23,7 @@ server.get('/api/tempo', getAllTempo);
 server.get('/api/mood', getAllMood);
 server.get('/api/songs', getAllSongs);
 server.get('/room/:room_id/join-room', redirectJoin);
-server.get('/room/:room_id', redirectRoom);
+server.get('/room/:room_id', renderRoom);
 server.listen(port, onServerReady);
 
 async function onGetCurrentTrackAtParty(request, response) {
@@ -45,8 +45,10 @@ async function redirectJoin(request, response) {
     response.sendFile(path.join(import.meta.dirname, '..', 'frontend', 'join-room.html'));
 }
 
-async function redirectRoom(request, response) {
+async function renderRoom(request, response) {
     response.sendFile(path.join(import.meta.dirname, '..', 'frontend', 'room.html'));
+    const roomId = request.params.room_id;
+    await db.query (``)
 }
 
 

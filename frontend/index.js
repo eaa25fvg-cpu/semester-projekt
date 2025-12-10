@@ -80,3 +80,13 @@ async function renderRoom(roomId) {
 function userSuggestsAttribute (type, value) {
     
 }
+
+window.onload = function () {
+    const parts = window.location.pathname.split('/');
+    const roomId = parts[2]; // henter roomId fra URL'en
+
+    const absoluteUrl = `${window.location.origin}/room/${roomId}/join-room`;
+
+    document.getElementById('qr').innerHTML = qr.encodeQR(absoluteUrl, 'svg');
+};
+

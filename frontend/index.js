@@ -38,21 +38,43 @@ async function createUser(name, avatar, roomId) {
 
     const data = await response.json();
 
+    localStorage.setItem("userId", data)
+
     window.location.href = `/room/${roomId}`;
     
     console.log("User created:", data);
 }
 
 
-async function renderRoom(roomId) {
-    const response = await fetch('/api/room/create-party', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({ roomName: name, theme: theme })
-    });
+
+function startRoomPolling(roomId, interval = 3000) {
+    renderRoom(roomId)
+
+    pollIntervalId = setInterval(() => {
+        renderRoom(roomId); 
+    }, interval)
 }
+
+
+async function renderRoom(roomId) {
+    try {
+        const userId = localStorage.getItem("userId");
+        const response = await fetch(`/api/room/${roomId}/${userId}`);
+        if (!response.ok) throw new Error(`Server error: ${response.status}`);
+        
+        const data = await response.json();
+        
+        console.log("Room:", data.room);
+        console.log("Users:", data.users);
+
+        // Update room title
+        document.getElementById("room-name").textContent = data.room.roomName;
+
+    } catch (err) {
+      console.error("Failed to load room:", err);
+      return null;
+    }
+  }  
 
 
 function userSuggestsAttribute (type, value) {

@@ -9,6 +9,36 @@ const db = await connect();
 const tracks = await loadTracks();
 const currentTracks = new Map(); // maps partyCode to index in tracks
 */
+
+// In-Memory States
+const roomState = new Map();
+const activeUsers = new Map();
+
+
+/* 
+
+** Room State Object **
+{
+roomName: ""
+songQueue: [{songItem}]
+currentSong: {songItem}
+}
+
+
+** Song Item Object **
+
+songName: ""
+artist: ""
+coverImage: ""
+duration: ""
+releaseYear: ""
+genre: int
+tempo: int
+theme: int
+mood: int
+*/
+
+
 const port = process.env.PORT || 3003;
 const server = express();
 
@@ -16,26 +46,19 @@ server.use(express.static('frontend'));
 server.use(express.json());
 server.use(onEachRequest);
 server.post('/api/create-party', onCreateParty)
-server.get('/api/party/:partyCode/currentTrack', onGetCurrentTrackAtParty);
+// server.get('/api/party/:partyCode/currentTrack', onGetCurrentTrackAtParty);
 server.post('/api/room/:room_id/createUser', onCreateUser);
+server.get('/api/room/:room_id/:user_id', onGetRoom)
 server.get('/api/theme', getAllTheme);
 server.get('/api/genre', getAllGenre);
 server.get('/api/tempo', getAllTempo);
 server.get('/api/mood', getAllMood);
 server.get('/api/songs', getAllSongs);
 server.get('/room/:room_id/join-room', redirectJoin);
-server.get('/room/:room_id', renderRoom);
+server.get('/room/:room_id', redirectRoom);
+server.get('/api/next-song/simple/:sessionId', getRandomSongForSession);   
+server.get('/api/next-song/user/:sessionId', getNextSongWithUserActivity);
 server.listen(port, onServerReady);
-
-async function onGetCurrentTrackAtParty(request, response) {
-    const partyCode = request.params.partyCode;
-    let trackIndex = currentTracks.get(partyCode);
-    if (trackIndex === undefined) {
-        trackIndex = pickNextTrackFor(partyCode);
-    }
-    const track = tracks[trackIndex];
-    response.json(track);
-}
 
 function onEachRequest(request, response, next) {
     console.log(new Date(), request.method, request.url);
@@ -46,10 +69,8 @@ async function redirectJoin(request, response) {
     response.sendFile(path.join(import.meta.dirname, '..', 'frontend', 'join-room.html'));
 }
 
-async function renderRoom(request, response) {
+async function redirectRoom(request, response) {
     response.sendFile(path.join(import.meta.dirname, '..', 'frontend', 'room.html'));
-    const roomId = request.params.room_id;
-    await db.query (``)
 }
 
 
@@ -74,19 +95,34 @@ function pickNextTrackFor(partyCode) {
 }
 
 
+async function onGetRoom ( request, response) {
+    const roomId = parseInt(request.params.room_id);
+    const roomItem = roomState.get(roomId);
+    const currentUsers = activeUsers.get(roomId);
+
+    response.json(
+        {
+            room: roomItem,
+            users: currentUsers
+        }
+    )
+}
+
 async function onCreateUser(request, response) {
     try{
         const roomId = request.params.room_id;
         const name = request.body.name;
         const avatar = request.body.avatar;
 
-        await db.query(`
+        const dbResult = await db.query(`
             INSERT INTO session_users (name, session_id, profile_image)
             VALUES ($1, $2, $3)
-            RETURNING name;
+            RETURNING session_users_id;
         `, [name, roomId, avatar]);
 
-        response.json({message: "User created successfully"});
+        const userId = dbResult.rows[0].session_users_id
+
+        response.json(userId);
             
     } catch (error) {
         console.error(error);
@@ -111,6 +147,9 @@ async function onCreateParty(request, response) {
         );
 
         const newRoomId = dbResult.rows[0].sessions_id;
+
+        const roomObject = createRoomObject(roomName)
+        roomState.set(newRoomId, roomObject)
 
         response.json({ room_id: newRoomId });
     } catch (err) {
@@ -167,6 +206,15 @@ async function getAllSongs(request, response) {
     }
 }
 
+
+function createRoomObject(roomName = "Et Rum") {
+    return {
+      roomName,
+      songQueue: [],
+      currentSong: null
+    };
+  }
+  
 async function getRandomSongForSession(request, response) {
     const sessionId = request.params.sessionId;
 

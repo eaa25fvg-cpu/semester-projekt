@@ -25,8 +25,6 @@ server.get('/api/mood', getAllMood);
 server.get('/api/songs', getAllSongs);
 server.get('/room/:room_id/join-room', redirectJoin);
 server.get('/room/:room_id', renderRoom);
-server.get('/api/next-song/simple/:sessionId', getRandomSongForSession);   
-server.get('/api/next-song/user/:sessionId', getNextSongWithUserActivity);
 server.listen(port, onServerReady);
 
 async function onGetCurrentTrackAtParty(request, response) {
@@ -101,6 +99,7 @@ async function onCreateParty(request, response) {
     try {
         const roomName = request.body.roomName;
         const theme = request.body.theme;
+        const currentSong = getNextSongWithUserActivity();
 
         const dbResult = await db.query(
             `

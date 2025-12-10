@@ -108,14 +108,12 @@
 
         </div>
     </div>
-
+    <br>    
     <div class="footer">
-        <p class="secondary">Jeg ønsker mere:</p>
         <div class="btn-wrapper">
-            <button class="secondary-btn">Jazz</button>
             <div id="more-options" class="secondary-btn">
+                <p>Tryk for at ønske sange</p>
                 <i class="ph-fill ph-dots-three-outline"></i>
-                <p>Flere muligheder</p>
             </div>
         </div>
     </div>
@@ -149,5 +147,71 @@
         }
         });
     </script>
+    <div id="search-modal" class="search-modal hidden">
+    <div class="search-modal-content">
+        <div class="search-header">
+            <input type="text" placeholder="Find what you like" class="search-input">
+        </div>
+
+        <div class="filter-row">
+            <button class="filter-btn active">All</button>
+            <button class="filter-btn">Genres</button>
+            <button class="filter-btn">Mood</button>
+            <button class="filter-btn">Tempo</button>
+            <button class="filter-btn">Activity</button>
+        </div>
+
+        <div class="search-list">
+            <div class="search-item">
+                <i class="ph-bold ph-rocket"></i>
+                <div>
+                    <p>High energy</p>
+                    <span>Tempo</span>
+                </div>
+            </div>
+
+            <div class="search-item">
+                <i class="ph-bold ph-smiley"></i>
+                <div>
+                    <p>Uplifting</p>
+                    <span>Mood</span>
+                </div>
+            </div>
+
+            <div class="search-item">
+                <i class="ph-bold ph-music-notes"></i>
+                <div>
+                    <p>Jazz</p>
+                    <span>Genres</span>
+                </div>
+            </div>
+
+            <div class="search-item">
+                <i class="ph-bold ph-person-simple-run"></i>
+                <div>
+                    <p>Party</p>
+                    <span>Activity</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+    const searchModal = document.getElementById("search-modal");
+    const moreOptionsBtn = document.getElementById("more-options");
+
+    // Åbn modal
+    moreOptionsBtn.addEventListener("click", () => {
+        searchModal.classList.remove("hidden");
+    });
+
+    // Luk modal ved klik udenfor indholdet
+    searchModal.addEventListener("click", (e) => {
+        if (e.target === searchModal) {
+            searchModal.classList.add("hidden");
+        }
+    });
+</script>
+
 </body>
 </html>

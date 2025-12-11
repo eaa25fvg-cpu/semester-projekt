@@ -333,11 +333,13 @@ label {
 .btn-wrapper {
     display: flex;
     gap: 8px;
+
 }
 
 .btn-wrapper .secondary-btn {
     font-size: 18px;
     font-weight: 600;
+    background-color: #2E6CF5;
 }
 
 
@@ -558,7 +560,6 @@ form {
     }
 }
 
-
 .search-modal {
     position: fixed;
     inset: 0;
@@ -701,7 +702,7 @@ form {
     padding: 10.07px 16.783px;
     flex-direction: column;
     align-items: flex-start;
-    
+    height: 100%;
 }
 
 .queue-item {

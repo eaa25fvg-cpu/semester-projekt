@@ -86,8 +86,38 @@
                             </div>
 
                             <div>
-                                <i class="ph-bold ph-thumbs-up"></i>
-                                <i class="ph-bold ph-thumbs-down"></i>
+            <a style="all: unset; cursor: pointer;">
+                <i class="ph-bold ph-thumbs-down" onclick="toggleFill(this)"></i>
+            </a>
+
+            <a style="all: unset; cursor: pointer;">
+                <i class="ph-bold ph-thumbs-up" onclick="toggleFill(this)"></i>
+            </a>
+
+            <script>
+                function toggleFill(icon) {
+    // like/dislike filled
+    icon.style.setProperty("color", "white", "important");
+    
+    if (icon.classList.contains("ph-bold")) {
+        icon.classList.remove("ph-bold");
+        icon.classList.add("ph-fill");
+    }
+    
+    // like/dislike skifter tilbage efter 2 sekunder
+    setTimeout(() => {
+        icon.style.removeProperty("color");
+        
+        if (icon.classList.contains("ph-fill")) {
+            icon.classList.remove("ph-fill");
+            icon.classList.add("ph-bold");
+        }
+    }, 2000); // 2000ms = 2 seconds
+}
+            </script>
+
+
+        
                             </div>
                         </div>
                         <div class="progress-container">
@@ -106,7 +136,16 @@
                     <span id="skip-count">0/0</span>
                     <span class="votes-label">votes</span>
                     </div>
+                    <br>
+                    
+                    <div class="btn-wrapper">
+                    <div id="more-options" class="secondary-btn">
+                        <p>Bestem musikkens retning</p>
+                        <i class="ph-fill ph-dots-three-outline"></i>
+                    </div>
+                    </div>
                 </div>
+
                 
             </div>
         </div>
@@ -127,7 +166,7 @@
             </div>
         </div>
     </div>
-
+   
 
     <script src="/index.js"></script>
     <script src="/qr.min.js"></script>
@@ -217,6 +256,8 @@
 <script>
 const listContainer = document.querySelector(".search-list");
 const filterButtons = document.querySelectorAll(".filter-btn");
+const searchInput = document.querySelector(".search-input");
+
 
 // Her gemmer vi API-data
 const data = {
@@ -256,7 +297,11 @@ async function loadAllCategories() {
 function renderList(type) {
     listContainer.innerHTML = "";
 
-    const items = data[type];
+    const searchValue = searchInput.value.toLowerCase();
+
+    const items = data[type].filter(item =>
+        item.label.toLowerCase().includes(searchValue)
+    );
 
     items.forEach(item => {
         const el = document.createElement("div");
@@ -276,6 +321,7 @@ function renderList(type) {
         listContainer.appendChild(el);
     });
 }
+
 
 // 3️⃣ Filter-knap klik
 filterButtons.forEach(btn => {
@@ -297,6 +343,13 @@ document.getElementById("more-options").addEventListener("click", async () => {
         await loadAllCategories();
     }
 });
+
+searchInput.addEventListener("input", () => {
+    const activeBtn = document.querySelector(".filter-btn.active");
+    const type = activeBtn.dataset.type;
+    renderList(type);
+});
+
 </script>
 
 

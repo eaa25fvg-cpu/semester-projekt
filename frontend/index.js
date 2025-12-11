@@ -186,3 +186,30 @@ window.onload = function () {
     document.getElementById('qr').innerHTML = qr.encodeQR(absoluteUrl, 'svg');
 };
 
+function animateKnob(startTimeMs, durationMs) {
+  const knobElement = document.getElementById('progress-knob');
+  if (!knobElement || !durationMs) return;
+
+  // Stop tidligere animation hvis der er en
+  if (window.currentProgressAnimationFrame) {
+    cancelAnimationFrame(window.currentProgressAnimationFrame);
+  }
+
+  function tick() {
+    const now = Date.now();
+    const elapsedTime = now - startTimeMs;
+    const clampedElapsed = Math.max(0, Math.min(durationMs, elapsedTime));
+    const percent = (clampedElapsed / durationMs) * 100;
+
+    knobElement.style.left = percent + '%';
+    knobElement.style.transform = 'translateX(-50%)';
+
+    if (clampedElapsed < durationMs) {
+      window.currentProgressAnimationFrame = requestAnimationFrame(tick);
+    } else {
+      window.currentProgressAnimationFrame = null;
+    }
+  }
+
+  tick();
+}

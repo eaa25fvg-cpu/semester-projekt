@@ -483,3 +483,16 @@ async function updateUserHeartbeat(roomId, userId) {
     
     return true;
 }
+
+async function getEvent(roomId) {
+    
+}
+
+async function addEvent(roomId, userId, event) {
+    const eventObject = {
+        userId: userId,
+        event: event,
+        timestamp: Date.now()
+    }
+    roomState.get(roomId).events.push(eventObject)
+}

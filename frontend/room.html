@@ -221,33 +221,32 @@ const filterButtons = document.querySelectorAll(".filter-btn");
 // Her gemmer vi API-data
 const data = {
     all: [],
-    tempo: [],
+    genres: [],
     mood: [],
-    genres: []
+    tempo: []
 };
 
 // 1️⃣ Hent alle API-data (kun tempo, mood, genres)
 async function loadAllCategories() {
-    const tempoRes = await fetch("/api/tempo");
-    const tempo = await tempoRes.json();
-    
-    const moodRes = await fetch("/api/mood");
-    const mood = await moodRes.json();
-    
     const genresRes = await fetch("/api/genre");
     const genres = await genresRes.json();
 
+    const moodRes = await fetch("/api/mood");
+    const mood = await moodRes.json();
+
+    const tempoRes = await fetch("/api/tempo");
+    const tempo = await tempoRes.json();
 
     // Gem i strukturen
-    data.tempo = tempo.map(x => ({ label: x.tempo_name, type: "Tempo" }));
-    data.mood = mood.map(x => ({ label: x.mood_name, type: "Mood" }));
     data.genres = genres.map(x => ({ label: x.genre_name, type: "Genres" }));
+    data.mood = mood.map(x => ({ label: x.mood_name, type: "Mood" }));
+    data.tempo = tempo.map(x => ({ label: x.tempo_name, type: "Tempo" }));
 
     // All = alt fra alle kategorier
     data.all = [
-        ...data.tempo,
+        ...data.genres,
         ...data.mood,
-        ...data.genres
+        ...data.tempo
     ];
 
     renderList("all");

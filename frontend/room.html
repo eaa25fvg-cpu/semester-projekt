@@ -166,11 +166,13 @@
                     </div>
                 </div>
             </div>
-            <div class="events">
-                <h3>Events</h3>
-            </div>
+    
+            
 
         </div>
+        <div class="events">
+                <h3>Events</h3>
+            </div>
     </div>
    
 
@@ -262,6 +264,8 @@
 <script>
 const listContainer = document.querySelector(".search-list");
 const filterButtons = document.querySelectorAll(".filter-btn");
+const searchInput = document.querySelector(".search-input");
+
 
 // Her gemmer vi API-data
 const data = {
@@ -301,7 +305,11 @@ async function loadAllCategories() {
 function renderList(type) {
     listContainer.innerHTML = "";
 
-    const items = data[type];
+    const searchValue = searchInput.value.toLowerCase();
+
+    const items = data[type].filter(item =>
+        item.label.toLowerCase().includes(searchValue)
+    );
 
     items.forEach(item => {
         const el = document.createElement("div");
@@ -321,6 +329,7 @@ function renderList(type) {
         listContainer.appendChild(el);
     });
 }
+
 
 // 3️⃣ Filter-knap klik
 filterButtons.forEach(btn => {
@@ -342,6 +351,13 @@ document.getElementById("more-options").addEventListener("click", async () => {
         await loadAllCategories();
     }
 });
+
+searchInput.addEventListener("input", () => {
+    const activeBtn = document.querySelector(".filter-btn.active");
+    const type = activeBtn.dataset.type;
+    renderList(type);
+});
+
 </script>
 
 

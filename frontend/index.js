@@ -64,7 +64,7 @@ async function renderRoom(roomId) {
         
         const data = await response.json();
         
-        console.log("Room:", data.room);
+        console.log("Data:", data);
         console.log("Users:", data.users);
 
         // Update room title
@@ -72,17 +72,8 @@ async function renderRoom(roomId) {
 
 
         // Update current song
-        let s = data.room.currentSong
+        let s = data.player.currentSong
 
-        console.log(
-            document.getElementById("room-name"),
-            document.getElementById("song-cover"),
-            document.getElementById("song-title"),
-            document.getElementById("song-artist"),
-            document.getElementById("active-user-count")
-        )
-
-        
         document.getElementById("song-cover").src = s.cover_image;
         document.getElementById("song-title").textContent = s.song_name;
         document.getElementById("song-artist").textContent = s.artist;

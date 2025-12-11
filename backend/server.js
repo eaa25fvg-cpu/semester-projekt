@@ -1,7 +1,7 @@
 import express from 'express';
 import path from 'path';
 import { connect } from '../db/connect.js';
-import { play } from './player.js';
+// import { play } from './player.js';
 import { get } from 'http';
 
 const db = await connect();
@@ -13,6 +13,7 @@ const currentTracks = new Map(); // maps partyCode to index in tracks
 // In-Memory States
 const roomState = new Map();
 const activeUsers = new Map();
+const players = new Map();
 
 
 /* 
@@ -22,6 +23,7 @@ const activeUsers = new Map();
 roomName: ""
 songQueue: [{songItem}]
 currentSong: {songItem}
+events: [{eventObject}]
 }
 
 
@@ -56,7 +58,7 @@ server.get('/api/mood', getAllMood);
 server.get('/api/songs', getAllSongs);
 server.get('/room/:room_id/join-room', redirectJoin);
 server.get('/room/:room_id', redirectRoom); 
-server.get('/api/next-song/user/:sessionId', getNextSongWithUserActivity);
+// server.get('/api/next-song/user/:sessionId', getNextSongWithUserActivity);
 server.listen(port, onServerReady);
 
 function onEachRequest(request, response, next) {
@@ -109,6 +111,9 @@ async function onGetRoom(request, response) {
             return response.status(404).json({ error: "Room not found" });
         }
         
+        playerHandler(roomId, "status")
+        const playerItem = players.get(roomId)
+
         // Get active users (automatically cleans up inactive ones)
         const currentUsers = getActiveUsersInRoom(roomId);
         
@@ -116,7 +121,8 @@ async function onGetRoom(request, response) {
             room: roomItem,
             users: currentUsers,
             user_count: currentUsers.length,
-            timestamp: Date.now()
+            timestamp: Date.now(),
+            player: playerItem
         });
         
     } catch (error) {
@@ -134,7 +140,7 @@ async function onSkipSong(request, response) {
 
     // Tilføj skip request
     if (!skipRequests.includes(userId)) {
-        room.skipRequests.push(userID)
+        room.skipRequests.push(userId)
     }
 
     // Få nuværende skip count
@@ -172,7 +178,13 @@ async function onCreateParty(request, response) {
     try {
         const roomName = request.body.roomName;
         const theme = request.body.theme;
-        const songObject = await getRandomSong(theme);
+        let queue = []
+
+        for (let index = 0; index < 3; index++) {
+            const element = await getRandomSong(theme)
+            queue.push(element)
+        }
+        const songObject = queue[0]
 
         const dbResult = await db.query(
             `
@@ -186,7 +198,10 @@ async function onCreateParty(request, response) {
         const newRoomId = dbResult.rows[0].sessions_id;
 
         const roomObject = createRoomObject(roomName, songObject)
+        const playerObject = createPlayerObject(songObject, queue)
+
         roomState.set(newRoomId, roomObject)
+        players.set(newRoomId, playerObject)
 
         response.json({ room_id: newRoomId });
     } catch (err) {
@@ -252,6 +267,15 @@ function createRoomObject(roomName = "Et Rum", song = null) {
       skipRequests: []
     };
   }
+
+  function createPlayerObject(currentSong, queue) {
+    return {
+        currentSong: currentSong,
+        songQueue: queue,
+        startTime: Date.now(),
+        skipRequests: []
+    }
+  }
   
   async function getRandomSong(theme) {
     try {
@@ -294,8 +318,8 @@ function createRoomObject(roomName = "Et Rum", song = null) {
 
 
 
-async function getNextSongWithUserActivity(request, response) {
-    const sessionId = request.params.sessionId;
+async function getSongByAttributes(roomId) {
+    const sessionId = roomId
 
     try {
         //
@@ -401,14 +425,14 @@ async function getNextSongWithUserActivity(request, response) {
         //
         const chosen = bestSongs[Math.floor(Math.random() * bestSongs.length)];
 
-        return response.json(chosen);
+        return chosen;
 
     } catch (error) {
         console.error("Fejl i getNextSongWithUserActivity:", error);
         return response.status(500).json({ error: "Serverfejl" });
     }
-}
 
+}
 
 // Active User Hearbeat Functions
 
@@ -482,4 +506,54 @@ async function updateUserHeartbeat(roomId, userId) {
     }
     
     return true;
+}
+
+
+async function playerHandler(roomId, action = "status") {
+    const player = players.get(roomId);
+
+    let startTime = player.startTime
+    const duration = player.currentSong.duration
+    let songQueue = player.songQueue
+    let currentSong = player.currentSong
+    let skipRequests = player.skipRequests
+    let newSong = null
+
+    if (action === "status") {
+
+        if (Date.now() >= startTime + duration) {
+            songQueue.splice(0,1)
+            currentSong = songQueue[0]
+
+            // Reset startTime & skip requests
+            startTime = Date.now()
+            skipRequests = []
+
+            // Add new song to Queue
+            newSong = await getSongByAttributes(roomId)
+            songQueue.push(newSong)
+        }
+ 
+
+    } else if (action === "skip") {
+        songQueue.splice(0,1)
+        currentSong = songQueue[0]
+
+        // Reset startTime & skip requests
+        startTime = Date.now()
+        skipRequests = []
+
+        // Add new song to Queue
+        newSong = await getSongByAttributes(roomId)
+        songQueue.push(newSong)
+    } else {
+        return "Error"
+    }
+
+    player.startTime = startTime
+    player.songQueue = songQueue
+    player.currentSong = currentSong
+    player.skipRequests = skipRequests
+
+    players.set(roomId, player);
 }

@@ -76,12 +76,12 @@
         <div class="container left">
             <div class="container">
                 <div class="cover-wrapper">
-                    <img id="song-cover" class="cover" src="https://i1.sndcdn.com/artworks-000338973915-kzzyns-t500x500.jpg">
+                    <img class="cover" src="https://i1.sndcdn.com/artworks-000338973915-kzzyns-t500x500.jpg">
                     <div class="song-wrapper">
                         <div class="inline-container">
                             <div>
-                                <h3 id="song-title">Paint it, Black</h3>
-                                <p id="song-artist">The Rolling Stones</p>
+                                <h3>Paint it, Black</h3>
+                                <p>The Rolling Stones</p>
                             </div>
 
                             <div>
@@ -259,6 +259,10 @@ function renderList(type) {
                 <p>${item.label}</p>
             </div>
         `;
+
+        el.onclick = () => {
+            userSuggestsAttribute(item.type, item.label);
+        };
 
         listContainer.appendChild(el);
     });

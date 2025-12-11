@@ -96,4 +96,3 @@ window.onload = function () {
 
     document.getElementById('qr').innerHTML = qr.encodeQR(absoluteUrl, 'svg');
 };
-

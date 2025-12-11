@@ -73,9 +73,13 @@ async function renderRoom(roomId) {
 
         // Update current song
         let s = data.room.currentSong
-        document.getElementById("song-cover").src = s.cover_image
-        document.getElementById("song-title").textContent = s.song_name
-        document.getElementById("song-artist").textContent = s.artist
+        document.getElementById("song-cover").src = s.cover_image;
+        document.getElementById("song-title").textContent = s.song_name;
+        document.getElementById("song-artist").textContent = s.artist;
+
+        // Update active users
+        document.getElementById("active-user-count").textContent = `${data.users.length} ${data.users.length === 1 ? "lytter" : "lyttere"}`;
+
 
     } catch (err) {
       console.error("Failed to load room:", err);

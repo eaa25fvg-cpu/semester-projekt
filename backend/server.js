@@ -337,52 +337,58 @@ function createRoomObject(roomName = "Et Rum", song = null) {
 
 
 
+// Add better error handling and fallback to getRandomSong:
+
 async function getSongByAttributes(roomId) {
-    const sessionId = roomId
+    const sessionId = roomId;
 
     try {
-        //
         // 1. Find sessionens tema
-        //
         const sessionResult = await db.query(
             `SELECT room_theme FROM sessions WHERE sessions_id = $1`,
             [sessionId]
         );
 
         if (sessionResult.rows.length === 0) {
-            return res.status(404).json({ error: "Session findes ikke" });
+            console. error("Session findes ikke:", sessionId);
+            return null;
         }
 
         const roomTheme = sessionResult.rows[0].room_theme;
 
-
-        //
         // 2. Hent alle sange som matcher temaet
-        //
         const songsResult = await db.query(
             `
             SELECT
                 so.songs_id,
                 so.song_name,
                 so.artist,
+                so.cover_image,
+                so.duration,
+                so.release_year,
                 g.genre_name,
                 te.tempo_name,
-                mo.mood_name
+                mo.mood_name,
+                th.theme_name,
+                th.theme_id
             FROM songs so
             JOIN genre g ON so.genre = g.genre_id
-            JOIN tempo te ON so.tempo = te.tempo_id
+            JOIN tempo te ON so.tempo = te. tempo_id
             JOIN mood mo ON so.mood = mo.mood_id
+            JOIN theme th ON so.theme = th.theme_id
             WHERE so.theme = $1;
             `,
             [roomTheme]
         );
 
         const songs = songsResult.rows;
+        
+        if (songs.length === 0) {
+            console.error(`No songs found for theme ${roomTheme}`);
+            return null;
+        }
 
-
-        //
         // 3. Hent alle user_activity for brugerne i sessionen
-        //
         const activityResult = await db.query(
             `
             SELECT ua.genre, ua.tempo, ua.mood
@@ -395,19 +401,14 @@ async function getSongByAttributes(roomId) {
 
         const activity = activityResult.rows;
 
-
-        //
-        // 4. Hvis ingen har valgt noget → fallback til random (som step 1)
-        //
+        // 4. Hvis ingen har valgt noget → fallback til random
         if (activity.length === 0) {
             const randomSong = songs[Math.floor(Math.random() * songs.length)];
-            return response.json(randomSong);
+            console.log(`No user activity, returning random song: ${randomSong. song_name}`);
+            return randomSong;
         }
 
-
-        //
         // 5. Tæl stemmer fra user_activity
-        //
         const votes = { genre: {}, tempo: {}, mood: {} };
 
         for (const act of activity) {
@@ -416,10 +417,7 @@ async function getSongByAttributes(roomId) {
             if (act.mood)  votes.mood[act.mood]  = (votes.mood[act.mood]  || 0) + 1;
         }
 
-
-        //
         // 6. Beregn score for hver sang
-        //
         let bestScore = -1;
         let bestSongs = [];
 
@@ -434,23 +432,32 @@ async function getSongByAttributes(roomId) {
                 bestScore = score;
                 bestSongs = [song];
             } else if (score === bestScore) {
-                bestSongs.push(song);
+                bestSongs. push(song);
             }
         }
 
-
-        //
-        // 7. Delvist random: vælg tilfældigt mellem topscorerne
-        //
+        // 7. Delvist random:  vælg tilfældigt mellem topscorerne
         const chosen = bestSongs[Math.floor(Math.random() * bestSongs.length)];
-
+        console.log(`Selected song based on user activity: ${chosen.song_name}, score: ${bestScore}`);
+        
         return chosen;
 
     } catch (error) {
-        console.error("Fejl i getNextSongWithUserActivity:", error);
-        return response.status(500).json({ error: "Serverfejl" });
+        console.error("Fejl i getSongByAttributes:", error);
+        // Fallback to getRandomSong
+        try {
+            const sessionResult = await db.query(
+                `SELECT room_theme FROM sessions WHERE sessions_id = $1`,
+                [sessionId]
+            );
+            if (sessionResult.rows.length > 0) {
+                return await getRandomSong(sessionResult.rows[0].room_theme);
+            }
+        } catch (fallbackError) {
+            console. error("Fallback also failed:", fallbackError);
+        }
+        return null;
     }
-
 }
 
 // Active User Hearbeat Functions
@@ -531,50 +538,104 @@ async function updateUserHeartbeat(roomId, userId) {
 async function playerHandler(roomId, action = "status") {
     const player = players.get(roomId);
 
-    let startTime = player.startTime
-    const duration = player.currentSong.duration
-    let songQueue = player.songQueue
-    let currentSong = player.currentSong
-    let skipRequests = player.skipRequests
-    let newSong = null
-
-    if (action === "status") {
-
-        if (Date.now() >= startTime + duration) {
-            songQueue.splice(0,1)
-            currentSong = songQueue[0]
-
-            // Reset startTime & skip requests
-            startTime = Date.now()
-            skipRequests = []
-
-            // Add new song to Queue
-            newSong = await getSongByAttributes(roomId)
-            songQueue.push(newSong)
-        }
- 
-
-    } else if (action === "skip") {
-        songQueue.splice(0,1)
-        currentSong = songQueue[0]
-
-        // Reset startTime & skip requests
-        startTime = Date.now()
-        skipRequests = []
-
-        // Add new song to Queue
-        newSong = await getSongByAttributes(roomId)
-        songQueue.push(newSong)
-    } else {
-        return "Error"
+    if (!player) {
+        console.error(`No player found for room ${roomId}`);
+        return false;
     }
 
-    player.startTime = startTime
-    player.songQueue = songQueue
-    player.currentSong = currentSong
-    player.skipRequests = skipRequests
+    let startTime = player.startTime;
+    const duration = player.currentSong.duration;
+    let songQueue = [... player.songQueue]; // Create a copy to avoid mutation issues
+    let currentSong = player.currentSong;
+    let skipRequests = player.skipRequests || [];
+    let newSong = null;
+
+    if (action === "status") {
+        // Check if current song has finished
+        if (Date.now() >= startTime + duration) {
+            console.log(`Song finished in room ${roomId}, moving to next song`);
+            
+            // Remove the current song from queue (it's the first one)
+            songQueue.shift();
+            
+            // Get next song from queue
+            if (songQueue.length > 0) {
+                currentSong = songQueue[0];
+            } else {
+                console.error(`Queue is empty for room ${roomId}`);
+                // Fallback: get a random song
+                const room = roomState.get(roomId);
+                if (room && room.currentSong) {
+                    newSong = await getSongByAttributes(roomId);
+                    if (newSong) {
+                        currentSong = newSong;
+                        songQueue = [newSong];
+                    }
+                }
+            }
+
+            // Reset startTime & skip requests
+            startTime = Date.now();
+            skipRequests = [];
+
+            // Add new song to Queue to maintain 3 songs
+            try {
+                newSong = await getSongByAttributes(roomId);
+                if (newSong) {
+                    songQueue.push(newSong);
+                    console.log(`Added new song to queue:  ${newSong.song_name}`);
+                } else {
+                    console.warn(`getSongByAttributes returned null for room ${roomId}`);
+                }
+            } catch (error) {
+                console.error(`Error getting new song for room ${roomId}: `, error);
+            }
+        }
+
+    } else if (action === "skip") {
+        console.log(`Skipping song in room ${roomId}`);
+        
+        // Remove current song
+        songQueue.shift();
+        
+        // Get next song
+        if (songQueue.length > 0) {
+            currentSong = songQueue[0];
+        } else {
+            console.error(`Queue is empty after skip for room ${roomId}`);
+            return false;
+        }
+
+        // Reset startTime & skip requests
+        startTime = Date.now();
+        skipRequests = [];
+
+        // Add new song to Queue
+        try {
+            newSong = await getSongByAttributes(roomId);
+            if (newSong) {
+                songQueue. push(newSong);
+                console.log(`Added new song after skip: ${newSong.song_name}`);
+            }
+        } catch (error) {
+            console.error(`Error getting new song after skip: `, error);
+        }
+    } else {
+        console.error(`Unknown action: ${action}`);
+        return false;
+    }
+
+    // Update player state
+    player.startTime = startTime;
+    player.songQueue = songQueue;
+    player.currentSong = currentSong;
+    player.skipRequests = skipRequests;
 
     players.set(roomId, player);
+    
+    console.log(`Player updated for room ${roomId}.  Current:  ${currentSong.song_name}, Queue length: ${songQueue.length}`);
+    
+    return true;
 }
 
 async function getEvent(roomId) {

@@ -57,12 +57,49 @@
       </form>
       </div>
       <div>
-        <span class="secondary" style="text-decoration: underline;"
-          >Privatpolitik</span>
-        <span class="secondary" style="text-decoration: underline;"
-          >Vilkår og betingelser</span>
+        <span class="secondary" style="text-decoration: underline; cursor:pointer;" id="privacyLink">
+          Privatpolitik
+        </span>
+
+        <span class="secondary" style="text-decoration: underline; cursor:pointer;" id="termsLink">
+          Vilkår og betingelser
+</span>
       </div>
     </div>
+    <div id="popup" style="
+  display:none;
+  position:fixed;
+  inset:0;
+  background:rgba(0,0,0,0.7);
+  padding:40px;
+  color:white;
+">
+  <div id="popupContent" style="
+    background:#222;
+    padding:20px;
+    max-width:600px;
+    margin:auto;
+    border-radius:8px;
+  "></div>
+</div>
+
+
+<script>
+  const popup = document.getElementById("popup");
+  const content = document.getElementById("popupContent");
+
+  document.getElementById("privacyLink").onclick = () => {
+    content.innerHTML = "<h2>Privatpolitik</h2><p>BeatBazar er forpligtet til at sikre dine data og holde dem fortrolige. BeatBazar har gjort alt i sin magt for at forhindre datatyveri, uautoriseret adgang og videregivelse ved at implementere den nyeste teknologi og software, som hjælper os med at beskytte alle de oplysninger, vi indsamler online.</p>";
+    popup.style.display = "block";
+  };
+
+  document.getElementById("termsLink").onclick = () => {
+    content.innerHTML = "<h2>Vilkår og betingelser</h2><p>Ved at få adgang til denne hjemmeside, accepterer du at være bundet af disse hjemmesidevilkår og -betingelser og accepterer, at du er ansvarlig for at overholde gældende lokale love. Hvis du er uenig i nogen af disse vilkår, mister du adgang til denne side. Materialet på denne hjemmeside er beskyttet af ophavsret og varemærkelovgivningen.</p>";
+    popup.style.display = "block";
+  };
+
+  popup.onclick = () => popup.style.display = "none";
+</script>
 
 
    <div class="right-container">

@@ -86,8 +86,38 @@
                             </div>
 
                             <div>
-                                <i class="ph-bold ph-thumbs-up"></i>
-                                <i class="ph-bold ph-thumbs-down"></i>
+            <a style="all: unset; cursor: pointer;">
+                <i class="ph-bold ph-thumbs-down" onclick="toggleFill(this)"></i>
+            </a>
+
+            <a style="all: unset; cursor: pointer;">
+                <i class="ph-bold ph-thumbs-up" onclick="toggleFill(this)"></i>
+            </a>
+
+            <script>
+                function toggleFill(icon) {
+    // like/dislike filled
+    icon.style.setProperty("color", "white", "important");
+    
+    if (icon.classList.contains("ph-bold")) {
+        icon.classList.remove("ph-bold");
+        icon.classList.add("ph-fill");
+    }
+    
+    // like/dislike skifter tilbage efter 2 sekunder
+    setTimeout(() => {
+        icon.style.removeProperty("color");
+        
+        if (icon.classList.contains("ph-fill")) {
+            icon.classList.remove("ph-fill");
+            icon.classList.add("ph-bold");
+        }
+    }, 2000); // 2000ms = 2 seconds
+}
+            </script>
+
+
+
                             </div>
                         </div>
                         <div class="progress-container">

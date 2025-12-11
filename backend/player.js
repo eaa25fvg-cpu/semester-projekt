@@ -1,33 +1,59 @@
-// This module represents a simulated integration with player devices like AirPods
-// and Bluetooth speakers
+/*const players = new Map();
 
-const players = new Map();
-
-// Call this function to play the specified track at the specified party.
-// Parameters:
-// - partyCode: a string identifying the party at which the track is being played
-// - trackId: the ID of the track, a string
-// - duration: the duration of the track in milliseconds, a number
-// - started: the timestamp at which the playback started, a Date
-// - callbackWhenDone: a function of zero arguments, to be called when playback is done
-export function play(partyCode, trackId, duration, started, callbackWhenDone) {
-    players.set(partyCode, {
-        trackId,
-        duration,
-        started,
-        callbackWhenDone,
-    });
+/*
+players = {
+currentSong = {}
+songQueue = {}
+startTime = ""
+skipRequests = []
 }
+*/
+ 
+async function playerHandler(roomId, action = "status") {
+    const player = players.get(roomId);
 
-function trackElapsedTimes() {
-    const now = Date.now();
-    for (const play of players.values()) {
-        const elapsed = now - play.started;
-        if (play.duration < elapsed) {
-            play.callbackWhenDone();
+    let startTime = player.startTime
+    const duration = player.currentSong.duration
+    let songQueue = player.songQueue
+    let currentSong = player.currentSong
+    let skipRequests = player.skipRequests
+    let newSong = null
+
+    if (action === "status") {
+
+        if (Date.now() >= startTime + duration) {
+            songQueue.splice(0,1)
+            currentSong = songQueue[0]
+
+            // Reset startTime & skip requests
+            startTime = Date.now()
+            skipRequests = []
+
+            // Add new song to Queue
+            newSong = await getSongByAttributes(roomId)
+            songQueue.push(newSong)
         }
-    }
-    setTimeout(() => trackElapsedTimes(), 100);
-}
+ 
 
-trackElapsedTimes();
+    } else if (action === "skip") {
+        songQueue.splice(0,1)
+        currentSong = songQueue[0]
+
+        // Reset startTime & skip requests
+        startTime = Date.now()
+        skipRequests = []
+
+        // Add new song to Queue
+        newSong = await getSongByAttributes(roomId)
+        songQueue.push(newSong)
+    } else {
+        return "Error"
+    }
+
+    player.startTime = startTime
+    player.songQueue = songQueue
+    player.currentSong = currentSong
+    player.skipRequests = skipRequests
+
+    players.set(roomId, player);
+}

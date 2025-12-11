@@ -242,11 +242,13 @@ label {
     justify-content: center;
 }
 
-.content,.left .container {
+.content .left .container {
     display: flex;
     justify-content: center;
 }
 .cover-wrapper {
+    display: flex;
+    flex-direction: column;
     align-self: center;
 }
 .cover {
@@ -266,6 +268,8 @@ label {
     font-size: 26px;
 }
 .song-wrapper {
+    display: flex;
+    flex-direction: column;
     padding-top: 16px;
 }
 
@@ -553,6 +557,18 @@ form {
     }
 }
 
+.skip-button {
+    display: inline-flex;
+    align-items: center;
+    background: transparent;
+    border: none;
+    color: #fff;
+    cursor: pointer;
+    padding: 0;
+    margin-top: 16px;
+    font-family: "Inter", sans-serif;
+    transition: opacity 200ms ease;
+}
 .search-modal {
     position: fixed;
     inset: 0;
@@ -636,3 +652,24 @@ form {
     background: rgba(255,255,255,0.14);
 }
 
+.skip-button:hover {
+    opacity: 0.7;
+}
+
+.skip-button:active {
+    opacity: 0.5;
+}
+
+.skip-text {
+    font-weight: 500;
+    font-size: 16px;
+    line-height: 22px;
+    color: #fff;
+}
+
+.skip-arrow {
+    margin-left: 6px;
+    font-size: 20px;
+    color: #fff;
+    font-weight: 300;
+}

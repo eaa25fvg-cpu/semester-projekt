@@ -73,6 +73,10 @@ async function renderRoom(roomId) {
 
         // Update current song
         let s = data.player.currentSong
+        // Start/Opdater progress-knob
+        updateProgressBar(data.player);
+        songTime(data.player);
+
 
         document.getElementById("song-cover").src = s.cover_image;
         document.getElementById("song-title").textContent = s.song_name;
@@ -177,30 +181,56 @@ window.onload = function () {
     document.getElementById('qr').innerHTML = qr.encodeQR(absoluteUrl, 'svg');
 };
 
-function animateKnob(startTimeMs, durationMs) {
-  const knobElement = document.getElementById('progress-knob');
-  if (!knobElement || !durationMs) return;
+let progressAnimationId = null;
 
-  // Stop tidligere animation hvis der er en
-  if (window.currentProgressAnimationFrame) {
-    cancelAnimationFrame(window.currentProgressAnimationFrame);
-  }
+function updateProgressBar(player) {
+    const knob = document.getElementById("progress-knob");
+    const barFill = document.getElementById("progress-bar");
 
-  function tick() {
-    const now = Date.now();
-    const elapsedTime = now - startTimeMs;
-    const clampedElapsed = Math.max(0, Math.min(durationMs, elapsedTime));
-    const percent = (clampedElapsed / durationMs) * 100;
+    if (!player || !player.currentSong) return;
 
-    knobElement.style.left = percent + '%';
-    knobElement.style.transform = 'translateX(-50%)';
+    const startTime = player.startTime;        // ms
+    const duration = player.currentSong.duration; // ms
 
-    if (clampedElapsed < durationMs) {
-      window.currentProgressAnimationFrame = requestAnimationFrame(tick);
-    } else {
-      window.currentProgressAnimationFrame = null;
+    if (progressAnimationId) cancelAnimationFrame(progressAnimationId);
+
+    function animate() {
+        const now = Date.now();
+        const elapsed = now - startTime; // ms
+        const pct = Math.min((elapsed / duration) * 100, 100);
+
+        knob.style.left = pct + "%";     // knob bevæger sig direkte
+        barFill.style.width = pct + "%"; // linear transition påfyldning
+
+        if (pct < 100) {
+            progressAnimationId = requestAnimationFrame(animate);
+        }
     }
-  }
 
-  tick();
+    animate();
 }
+
+function songTime(player) {
+    const startEl = document.getElementById('song-start');
+    const endEl = document.getElementById('song-end');
+
+    const now = Date.now();
+    const startTime = player.startTime; // ms fra server
+    const duration = player.currentSong.duration; // ms
+
+    // Hvor langt inde i sangen er vi i sekunder)
+    const elapsedSec = Math.floor((now - startTime) / 1000);
+
+    // Sangens længde i sekunder
+    const durationSec = Math.floor(duration / 1000);
+
+    startEl.textContent = formatTime(elapsedSec);
+    endEl.textContent = formatTime(durationSec);
+}
+
+function formatTime(sec) {
+    const formatMin = Math.floor(sec / 60);
+    const formatSec = sec % 60;
+    return `${formatMin}:${formatSec.toString().padStart(2, '0')}`;
+}
+

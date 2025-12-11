@@ -560,25 +560,6 @@ form {
     }
 }
 
-html, body {
-    height: 100vh;
-    overflow: hidden;
-    margin: 0;
-    padding: 0;
-}
-
-body {
-    display: flex;
-    flex-direction: column;
-}
-
-.content {
-    flex: 1;
-    overflow: hidden;
-    min-height: 0;
-}
-
-
 .search-modal {
     position: fixed;
     inset: 0;

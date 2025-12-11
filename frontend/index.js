@@ -78,6 +78,9 @@ async function renderRoom(roomId) {
         document.getElementById("song-title").textContent = s.song_name;
         document.getElementById("song-artist").textContent = s.artist;
 
+        // Update queue
+        renderQueue(data.player.songQueue)
+
         // Update active users
         document.getElementById("active-user-count").textContent = `${data.users.length} ${data.users.length === 1 ? "lytter" : "lyttere"}`;
 
@@ -177,3 +180,42 @@ window.onload = function () {
     document.getElementById('qr').innerHTML = qr.encodeQR(absoluteUrl, 'svg');
 };
 
+function renderQueue(queue) {
+    const parent = document.getElementById("queue-list");
+    if (!parent) return;
+
+    // Clear previous queue to avoid duplication
+    parent.innerHTML = "";
+
+    if (!Array.isArray(queue) || queue.length === 0) return;
+
+    const html = queue
+        .map((song, index) => {
+            const isNowPlaying = index === 0;
+
+            return `
+                <div class="queue-item">
+                    <div class="item-info">
+                        <img class="queue-cover" src="${song.cover_image || ""}">
+                        <div class="text-wrapper">
+                            <p class="queue-title">${song.song_name}</p>
+                            <p class="queue-artist">${song.artist}</p>
+                        </div>
+                    </div>
+
+                    ${
+                        isNowPlaying
+                            ? `
+                        <div class="play-status">
+                            <i class="ph-fill ph-play"></i>
+                            <p>Now playing</p>
+                        </div>`
+                            : ""
+                    }
+                </div>
+            `;
+        })
+        .join("");
+
+    parent.innerHTML = html;
+}

@@ -126,22 +126,41 @@ async function onGetRoom(request, response) {
 }
 
 async function onSkipSong(request, response) {
-    const roomId = parseInt(request.params.room_id);
-    const userId = parseInt(request.params.user_id);
+    try {
+        const roomId = parseInt(request.params.room_id);
+        const userId = parseInt(request.params.user_id);
 
-    const room = roomState.get(roomId);
-    const users = activeUsers.get(userId)
-
-    // Tilføj skip request
-    if (!skipRequests.includes(userId)) {
-        room.skipRequests.push(userID)
-    }
-
-    // Få nuværende skip count
-    const userCount = users.length;
-
-    if (room.skipRequests.length > userCount / 2) {
+        const room = roomState.get(roomId);
         
+        if (!room) {
+            return response.status(404).json({ error: "Room not found" });
+        }
+
+        // Initialiser skipRequests hvis det ikke findes
+        if (!room.skipRequests) {
+            room.skipRequests = [];
+        }
+
+        // Check om brugeren allerede har stemt
+        const hasVoted = room.skipRequests.includes(userId);
+
+        if (hasVoted) {
+            // Fjern stemme
+            room.skipRequests = room.skipRequests.filter(id => id !== userId);
+        } else {
+            // Tilføj stemme
+            room.skipRequests.push(userId);
+        }
+
+        // Send tilbage
+        response.json({
+            success: true,
+            skipVotes: room.skipRequests.length
+        });
+        
+    } catch (error) {
+        console.error('Error in onSkipSong:', error);
+        response.status(500).json({ error: "Server error" });
     }
 }
 

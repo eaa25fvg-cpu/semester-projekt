@@ -679,15 +679,21 @@ form {
     font-family: "Inter", sans-serif;
     transition: opacity 200ms ease;
 }
-
-#skip-vote {
+.skip-votes-container {
+    display: flex;
+    gap: 4px;
     margin-left: 30px;
-    color: var(--Secondary, rgba(255, 255, 255, 0.60));
     font-family: Inter;
     font-size: 11.748px;
-    font-style: normal;
     font-weight: 500;
-    line-height: normal;
+}
+
+#skip-count {
+    color: rgba(255, 255, 255, 0.60);
+}
+
+.votes-label {
+    color: rgba(255, 255, 255, 0.60);
 }
 
 .skip-container {

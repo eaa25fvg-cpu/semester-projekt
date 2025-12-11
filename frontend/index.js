@@ -224,22 +224,44 @@ function renderQueue(queue) {
     parent.innerHTML = html;
 }
 
-function animateKnob(startTimeMs, durationMs) {
-  const knobElement = document.getElementById('progress-knob');
-  if (!knobElement || !durationMs) return;
+let progressAnimationId = null;
 
-  // Stop tidligere animation hvis der er en
-  if (window.currentProgressAnimationFrame) {
-    cancelAnimationFrame(window.currentProgressAnimationFrame);
-  }
+function updateProgressBar(player) {
+    const knob = document.getElementById("progress-knob");
+    const barFill = document.getElementById("progress-bar");
+
+    if (!player || !player.currentSong) return;
+
+    const startTime = player.startTime;        // ms
+    const duration = player.currentSong.duration; // ms
+
+    if (progressAnimationId) cancelAnimationFrame(progressAnimationId);
+
+    function animate() {
+        const now = Date.now();
+        const elapsed = now - startTime; // ms
+        const pct = Math.min((elapsed / duration) * 100, 100);
+
+        knob.style.left = pct + "%";     // knob bevæger sig direkte
+        barFill.style.width = pct + "%"; // linear transition påfyldning
+
+        if (pct < 100) {
+            progressAnimationId = requestAnimationFrame(animate);
+        }
+    }
+
+    animate();
 }
 
-  function tick() {
+ function songTime(player) {
+    const startEl = document.getElementById('song-start');
+    const endEl = document.getElementById('song-end');
+
     const now = Date.now();
     const startTime = player.startTime; // ms fra server
     const duration = player.currentSong.duration; // ms
 
-    // Hvor langt inde i sangen er vi i sekunder
+    // Hvor langt inde i sangen er vi i sekunder)
     const elapsedSec = Math.floor((now - startTime) / 1000);
 
     // Sangens længde i sekunder

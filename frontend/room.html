@@ -65,7 +65,23 @@
                             <p id="join-code">1234</p>
                         </div>
                     </div>
-
+                    <script>
+                        document.querySelector('.code-wrapper').addEventListener('click', () => {
+                            const code = document.getElementById('join-code').textContent;
+    
+                           navigator.clipboard.writeText(code).then(() => {
+                                  const codeElement = document.getElementById('join-code');
+                                  const originalText = codeElement.textContent;
+                               codeElement.textContent = 'Kopieret!';
+        
+                              setTimeout(() => {
+                                  codeElement.textContent = originalText;
+                              }, 1500);
+                            }).catch(err => {
+                                console.error('Failed to copy:', err);
+                            });
+                        });
+                    </script>
                 </div>
             </div>
         </div>

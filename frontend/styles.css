@@ -725,3 +725,45 @@ form {
     color: rgba(255, 255, 255, 0.60);
 }
  
+.queue-item {
+    display: flex;
+    justify-content: space-between;
+    padding: 8px;
+}
+
+.item-info {
+    display: flex;
+    gap: 10px;
+}
+
+.text-wrapper {
+    justify-content: center;
+}
+
+.item-info .text-wrapper .queue-title {
+    font-size: 16px;
+}
+
+.item-info .text-wrapper .queue-artist {
+    font-size: 14px;
+    font-weight: 500;
+    color: rgba(255, 255, 255, 0.60);
+}
+
+.queue-cover {
+    width: 50px;
+    height: 50px;
+    border-radius: 6px;
+}
+
+.play-status {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.play-status p, .play-status i {
+    color: #2E6CF5;
+    font-size: 12px;
+    text-wrap: nowrap;
+}

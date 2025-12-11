@@ -82,6 +82,9 @@ async function renderRoom(roomId) {
         document.getElementById("song-title").textContent = s.song_name;
         document.getElementById("song-artist").textContent = s.artist;
 
+        // Update queue
+        renderQueue(data.player.songQueue)
+
         // Update active users
         document.getElementById("active-user-count").textContent = `${data.users.length} ${data.users.length === 1 ? "lytter" : "lyttere"}`;
 
@@ -181,44 +184,62 @@ window.onload = function () {
     document.getElementById('qr').innerHTML = qr.encodeQR(absoluteUrl, 'svg');
 };
 
-let progressAnimationId = null;
+function renderQueue(queue) {
+    const parent = document.getElementById("queue-list");
+    if (!parent) return;
 
-function updateProgressBar(player) {
-    const knob = document.getElementById("progress-knob");
-    const barFill = document.getElementById("progress-bar");
+    // Clear previous queue to avoid duplication
+    parent.innerHTML = "";
 
-    if (!player || !player.currentSong) return;
+    if (!Array.isArray(queue) || queue.length === 0) return;
 
-    const startTime = player.startTime;        // ms
-    const duration = player.currentSong.duration; // ms
+    const html = queue
+        .map((song, index) => {
+            const isNowPlaying = index === 0;
 
-    if (progressAnimationId) cancelAnimationFrame(progressAnimationId);
+            return `
+                <div class="queue-item">
+                    <div class="item-info">
+                        <img class="queue-cover" src="${song.cover_image || ""}">
+                        <div class="text-wrapper">
+                            <p class="queue-title">${song.song_name}</p>
+                            <p class="queue-artist">${song.artist}</p>
+                        </div>
+                    </div>
 
-    function animate() {
-        const now = Date.now();
-        const elapsed = now - startTime; // ms
-        const pct = Math.min((elapsed / duration) * 100, 100);
+                    ${
+                        isNowPlaying
+                            ? `
+                        <div class="play-status">
+                            <i class="ph-fill ph-play"></i>
+                            <p>Now playing</p>
+                        </div>`
+                            : ""
+                    }
+                </div>
+            `;
+        })
+        .join("");
 
-        knob.style.left = pct + "%";     // knob bevæger sig direkte
-        barFill.style.width = pct + "%"; // linear transition påfyldning
-
-        if (pct < 100) {
-            progressAnimationId = requestAnimationFrame(animate);
-        }
-    }
-
-    animate();
+    parent.innerHTML = html;
 }
 
-function songTime(player) {
-    const startEl = document.getElementById('song-start');
-    const endEl = document.getElementById('song-end');
+function animateKnob(startTimeMs, durationMs) {
+  const knobElement = document.getElementById('progress-knob');
+  if (!knobElement || !durationMs) return;
 
+  // Stop tidligere animation hvis der er en
+  if (window.currentProgressAnimationFrame) {
+    cancelAnimationFrame(window.currentProgressAnimationFrame);
+  }
+}
+
+  function tick() {
     const now = Date.now();
     const startTime = player.startTime; // ms fra server
     const duration = player.currentSong.duration; // ms
 
-    // Hvor langt inde i sangen er vi i sekunder)
+    // Hvor langt inde i sangen er vi i sekunder
     const elapsedSec = Math.floor((now - startTime) / 1000);
 
     // Sangens længde i sekunder

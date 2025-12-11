@@ -64,7 +64,7 @@ async function renderRoom(roomId) {
         
         const data = await response.json();
         
-        console.log("Room:", data.room);
+        console.log("Data:", data);
         console.log("Users:", data.users);
 
         // Update room title
@@ -72,17 +72,8 @@ async function renderRoom(roomId) {
 
 
         // Update current song
-        let s = data.room.currentSong
+        let s = data.player.currentSong
 
-        console.log(
-            document.getElementById("room-name"),
-            document.getElementById("song-cover"),
-            document.getElementById("song-title"),
-            document.getElementById("song-artist"),
-            document.getElementById("active-user-count")
-        )
-
-        
         document.getElementById("song-cover").src = s.cover_image;
         document.getElementById("song-title").textContent = s.song_name;
         document.getElementById("song-artist").textContent = s.artist;
@@ -186,3 +177,30 @@ window.onload = function () {
     document.getElementById('qr').innerHTML = qr.encodeQR(absoluteUrl, 'svg');
 };
 
+function animateKnob(startTimeMs, durationMs) {
+  const knobElement = document.getElementById('progress-knob');
+  if (!knobElement || !durationMs) return;
+
+  // Stop tidligere animation hvis der er en
+  if (window.currentProgressAnimationFrame) {
+    cancelAnimationFrame(window.currentProgressAnimationFrame);
+  }
+
+  function tick() {
+    const now = Date.now();
+    const elapsedTime = now - startTimeMs;
+    const clampedElapsed = Math.max(0, Math.min(durationMs, elapsedTime));
+    const percent = (clampedElapsed / durationMs) * 100;
+
+    knobElement.style.left = percent + '%';
+    knobElement.style.transform = 'translateX(-50%)';
+
+    if (clampedElapsed < durationMs) {
+      window.currentProgressAnimationFrame = requestAnimationFrame(tick);
+    } else {
+      window.currentProgressAnimationFrame = null;
+    }
+  }
+
+  tick();
+}

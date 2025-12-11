@@ -558,18 +558,7 @@ form {
     }
 }
 
-.skip-button {
-    display: inline-flex;
-    align-items: center;
-    background: transparent;
-    border: none;
-    color: #fff;
-    cursor: pointer;
-    padding: 0;
-    margin-top: 16px;
-    font-family: "Inter", sans-serif;
-    transition: opacity 200ms ease;
-}
+
 .search-modal {
     position: fixed;
     inset: 0;
@@ -661,10 +650,12 @@ form {
 }
 
 .skip-text {
+    color: var(--Primary, #FFF);
+    font-family: Inter;
+    font-size: 18.461px;
+    font-style: normal;
     font-weight: 500;
-    font-size: 16px;
-    line-height: 22px;
-    color: #fff;
+    line-height: normal;
 }
 
 .skip-arrow {
@@ -672,4 +663,37 @@ form {
     font-size: 20px;
     color: #fff;
     font-weight: 300;
+}
+
+.skip-button {
+    display: flex;
+    justify-content: start;
+    align-items: center;
+    background: transparent;
+    border: none;
+    color: #fff;
+    cursor: pointer;
+    padding: 4px;
+    margin-top: 250px;
+    margin-left: 30px;
+    font-family: "Inter", sans-serif;
+    transition: opacity 200ms ease;
+}
+
+#skip-vote {
+    margin-left: 30px;
+    color: var(--Secondary, rgba(255, 255, 255, 0.60));
+    font-family: Inter;
+    font-size: 11.748px;
+    font-style: normal;
+    font-weight: 500;
+    line-height: normal;
+}
+
+.skip-container {
+    display: flex;
+    padding: 10.07px 16.783px;
+    flex-direction: column;
+    align-items: flex-start;
+    
 }

@@ -46,7 +46,7 @@ server.use(express.static('frontend'));
 server.use(express.json());
 server.use(onEachRequest);
 server.post('/api/create-party', onCreateParty)
-// server.get('/api/party/:partyCode/currentTrack', onGetCurrentTrackAtParty);
+server.post('/api/room/:room_id/:user_id/skip-song', onSkipSong)
 server.post('/api/room/:room_id/createUser', onCreateUser);
 server.get('/api/room/:room_id/:user_id', onGetRoom)
 server.get('/api/theme', getAllTheme);
@@ -94,17 +94,55 @@ function pickNextTrackFor(partyCode) {
 }
 
 
-async function onGetRoom ( request, response) {
-    const roomId = parseInt(request.params.room_id);
-    const roomItem = roomState.get(roomId);
-    const currentUsers = activeUsers.get(roomId);
-
-    response.json(
-        {
-            room: roomItem,
-            users: currentUsers
+async function onGetRoom(request, response) {
+    try {
+        const roomId = parseInt(request.params.room_id);
+        const userId = parseInt(request.params.user_id);
+        
+        // Update user's heartbeat (mark as active)
+        await updateUserHeartbeat(roomId, userId);
+        
+        // Get room state from memory
+        const roomItem = roomState.get(roomId);
+        
+        if (!roomItem) {
+            return response.status(404).json({ error: "Room not found" });
         }
-    )
+        
+        // Get active users (automatically cleans up inactive ones)
+        const currentUsers = getActiveUsersInRoom(roomId);
+        
+        response.json({
+            room: roomItem,
+            users: currentUsers,
+            user_count: currentUsers.length,
+            timestamp: Date.now()
+        });
+        
+    } catch (error) {
+        console.error('Error in onGetRoom:', error);
+        response.status(500).json({ error: "Server error" });
+    }
+}
+
+async function onSkipSong(request, response) {
+    const roomId = parseInt(request.params.room_id);
+    const userId = parseInt(request.params.user_id);
+
+    const room = roomState.get(roomId);
+    const users = activeUsers.get(userId)
+
+    // Tilføj skip request
+    if (!skipRequests.includes(userId)) {
+        room.skipRequests.push(userID)
+    }
+
+    // Få nuværende skip count
+    const userCount = users.length;
+
+    if (room.skipRequests.length > userCount / 2) {
+        
+    }
 }
 
 async function onCreateUser(request, response) {
@@ -210,7 +248,8 @@ function createRoomObject(roomName = "Et Rum", song = null) {
     return {
       roomName,
       songQueue: [],
-      currentSong: song
+      currentSong: song,
+      skipRequests: []
     };
   }
   
@@ -371,3 +410,76 @@ async function getNextSongWithUserActivity(request, response) {
 }
 
 
+// Active User Hearbeat Functions
+
+
+// Get active users and clean up inactive ones
+function getActiveUsersInRoom(roomId) {
+    if (!activeUsers.has(roomId)) {
+        return [];
+    }
+    
+    const roomUsers = activeUsers.get(roomId);
+    const now = Date.now();
+    const activeUsersList = [];
+    
+    // Filter out inactive users and return active ones
+    for (const [userId, userData] of roomUsers. entries()) {
+        if (now - userData.lastSeen < 10000) {
+            activeUsersList.push({
+                session_users_id: userData.session_users_id,
+                name: userData.name,
+                profile_image: userData.profile_image,
+                lastSeen: userData. lastSeen
+            });
+        } else {
+            // Remove inactive user
+            console.log(`User ${userId} timed out in room ${roomId}`);
+            roomUsers.delete(userId);
+        }
+    }
+    
+    return activeUsersList;
+}
+
+// Update user's last seen timestamp (heartbeat)
+async function updateUserHeartbeat(roomId, userId) {
+    if (!activeUsers.has(roomId)) {
+        activeUsers.set(roomId, new Map());
+    }
+    
+    const roomUsers = activeUsers. get(roomId);
+    
+    if (!roomUsers.has(userId)) {
+        // Fetch user details from database first time
+        try {
+            const userResult = await db.query(`
+                SELECT session_users_id, name, profile_image
+                FROM session_users
+                WHERE session_users_id = $1 AND session_id = $2
+            `, [userId, roomId]);
+            
+            if (userResult. rows.length > 0) {
+                roomUsers.set(userId, {
+                    session_users_id:  userResult.rows[0].session_users_id,
+                    name: userResult.rows[0].name,
+                    profile_image: userResult.rows[0].profile_image,
+                    lastSeen: Date.now()
+                });
+                console.log(`User ${userId} joined room ${roomId}`);
+            } else {
+                console.warn(`User ${userId} not found in database for room ${roomId}`);
+                return false;
+            }
+        } catch (error) {
+            console. error('Error fetching user details:', error);
+            return false;
+        }
+    } else {
+        // Just update last seen timestamp
+        const user = roomUsers.get(userId);
+        user.lastSeen = Date.now();
+    }
+    
+    return true;
+}

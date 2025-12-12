@@ -82,6 +82,15 @@
                             });
                         });
                     </script>
+
+                    <script>
+                        document.addEventListener("DOMContentLoaded", () => {
+                            const roomId = window.location.pathname.split('/')[2];
+                            const inviteUrl = `${window.location.origin}/room/${roomId}/join-room`;
+                            document.getElementById("join-code").textContent = inviteUrl;
+                        });
+                    </script>
+
                 </div>
             </div>
         </div>

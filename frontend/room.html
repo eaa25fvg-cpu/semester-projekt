@@ -339,9 +339,16 @@ function renderList(type) {
                 <p>${item.label}</p>
             </div>
         `;
-
+        
+        const roomId = window.location.pathname.split('/')[2];
+        const attribute = {
+            type: item.type,
+            value: item.id,
+            name: item.label 
+        };
+       
         el.onclick = () => {
-            userSuggestsAttribute(item.type, item.label, item.id);
+            addAttribute(roomId, attribute)
         };
 
         listContainer.appendChild(el);

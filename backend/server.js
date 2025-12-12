@@ -699,9 +699,14 @@ async function addEvent(roomId, userId, eventMesssage) {
 async function onSelectAttribute(request, response) {
     const roomId = request.params.room_id;
     const userId = request.params.user_id;
+    const attribute = request.body.attribute || {};
+    const { type, value, name } = attribute;
 
-    const { type, value, name } = request.body.attribute;
+    if (!type || value === undefined) {
+        return response.status(400).send({ error: "Missing attribute type or value" });
+    }
 
+    // Direct insert using provided 'type' as column (no mapping, per request)
     const query = `
         INSERT INTO user_activity (user_id, session_id, ${type})
         VALUES ($1, $2, $3)
@@ -709,7 +714,8 @@ async function onSelectAttribute(request, response) {
 
     try {
         await db.query(query, [userId, roomId, value]);
-        addEvent(roomId, userId, `har tilføjet mere ${name}`);
+        // fire a simple event; addEvent is defensive now so it won't crash
+        await addEvent(roomId, userId, `har tilføjet mere ${name || ''}`);
         return response.status(200).send({ ok: true });
     } catch (err) {
         console.error("DB Error:", err);

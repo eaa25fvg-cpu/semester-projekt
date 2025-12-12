@@ -261,7 +261,7 @@ function updateProgressBar(player) {
     const startTime = player.startTime; // ms fra server
     const duration = player.currentSong.duration; // ms
 
-    // Hvor langt inde i sangen er vi i sekunder)
+    // Hvor langt inde i sangen er vi i sekunder
     const elapsedSec = Math.floor((now - startTime) / 1000);
 
     // Sangens længde i sekunder

@@ -50,6 +50,7 @@ server.use(onEachRequest);
 server.post('/api/create-party', onCreateParty)
 server.post('/api/room/:room_id/:user_id/skip-song', onSkipSong)
 server.post('/api/room/:room_id/createUser', onCreateUser);
+server.post('api/room/:room_id/:user_id/select-attribute', onSelectAttribute)
 server.get('/api/room/:room_id/:user_id', onGetRoom)
 server.get('/api/theme', getAllTheme);
 server.get('/api/genre', getAllGenre);
@@ -216,7 +217,7 @@ async function onCreateParty(request, response) {
 
         const newRoomId = dbResult.rows[0].sessions_id;
 
-        const roomObject = createRoomObject(roomName, songObject)
+        const roomObject = createRoomObject(roomName)
         const playerObject = createPlayerObject(songObject, queue)
 
         roomState.set(newRoomId, roomObject)
@@ -278,12 +279,10 @@ async function getAllSongs(request, response) {
 }
 
 
-function createRoomObject(roomName = "Et Rum", song = null) {
+function createRoomObject(roomName = "Et Rum") {
     return {
       roomName,
-      songQueue: [],
-      currentSong: song,
-      skipRequests: []
+      events: []
     };
   }
 
@@ -498,7 +497,7 @@ async function updateUserHeartbeat(roomId, userId) {
         activeUsers.set(roomId, new Map());
     }
     
-    const roomUsers = activeUsers. get(roomId);
+    const roomUsers = activeUsers.get(roomId);
     
     if (!roomUsers.has(userId)) {
         // Fetch user details from database first time
@@ -642,11 +641,39 @@ async function getEvent(roomId) {
     
 }
 
-async function addEvent(roomId, userId, event) {
+async function addEvent(roomId, userId, eventMesssage) {
+
+    const userName = activeUsers.get(userId).name;
+    const userAvatar = activeUsers.get(userId).profile_image;
+    const event = `${userName} ${eventMesssage}`;
+
     const eventObject = {
         userId: userId,
+        userAvatar: userAvatar,
         event: event,
         timestamp: Date.now()
     }
     roomState.get(roomId).events.push(eventObject)
+}
+
+
+async function onSelectAttribute(request, response) {
+    roomId = request.params.room_id;
+    userId = request.params.user_id;
+
+    attributeType = request.body.attribute.type;
+    attributeName = request.body.attribute.name;
+    attributeValue = request.body.attibute.id;
+
+    const columnNames = `user_id, session_id, ${attributeType}`;
+    const columnValues = `${userId},${roomId}, ${attributeValue}`;
+
+    const dbResult = await db.query(`
+        INSERT INTO user_activity ($1)
+        VALUES ($2)
+        `,[columnNames, columnValues]);
+    
+    addEvent(roomId, userId, `har tilføjet mere ${attributeName}`)
+
+    response.status(200)
 }

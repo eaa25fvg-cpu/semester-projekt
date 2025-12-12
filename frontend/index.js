@@ -85,8 +85,8 @@ async function renderRoom(roomId) {
         // Update queue
         renderQueue(data.player.songQueue)
 
-        // Update active users
-        document.getElementById("active-user-count").textContent = `${data.users.length} ${data.users.length === 1 ? "lytter" : "lyttere"}`;
+        // Update active user elements
+        updateActiveUsers(data.users)
 
         const totalUsers = data.users.length; 
         document.getElementById("active-user-count").textContent = `${totalUsers} ${totalUsers === 1 ? "lytter" : "lyttere"}`;
@@ -212,7 +212,7 @@ function renderQueue(queue) {
                             ? `
                         <div class="play-status">
                             <i class="ph-fill ph-play"></i>
-                            <p>Now playing</p>
+                            <p>Afspilles nu</p>
                         </div>`
                             : ""
                     }
@@ -277,3 +277,55 @@ function formatTime(sec) {
     return `${formatMin}:${formatSec.toString().padStart(2, '0')}`;
 }
 
+function updateActiveUsers(users) {
+    // Opdatere Live Lyttertal
+    document.getElementById("active-user-count").textContent = `${users.length} ${users.length === 1 ? "lytter" : "lyttere"}`; 
+
+    const userList = document.getElementById("user-list");
+
+    userList.innerHTML = "";
+
+    // Loop (max 3 iterations)
+    for (let i = 0; i < users.length && i < 3; i++) {
+        const user = users[i];
+
+        // Create elements
+        const item = document.createElement("div");
+        item.className = "user-item";
+
+        const img = document.createElement("img");
+        img.className = "user-img";
+        img.src = user.profile_image;
+
+        const textWrapper = document.createElement("div");
+        textWrapper.className = "text-wrapper";
+
+        const nameEl = document.createElement("p");
+        nameEl.className = "user-name";
+        nameEl.textContent = user.name;
+
+        const roleEl = document.createElement("p");
+        roleEl.className = "user-role";
+        roleEl.textContent = "Lytter";
+
+        // Build structure
+        textWrapper.appendChild(nameEl);
+        textWrapper.appendChild(roleEl);
+
+        item.appendChild(img);
+        item.appendChild(textWrapper);
+
+        // Append to #user-list
+        userList.appendChild(item);
+    }
+}
+
+async function addAttribute(roomId, userId, attribute) {
+    const response = await fetch(`api/room/${roomId}/${userId}/select-attribute`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(attribute)
+    });
+}

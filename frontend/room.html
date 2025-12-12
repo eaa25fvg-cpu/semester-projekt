@@ -176,6 +176,11 @@
                 <h3>Kø</h3>
                 <div id="queue-list"></div>
         </div>
+        <div class="events-container">
+        <h3>Events</h3>
+        <div id="event-list"></div>
+        </div>
+
     </div>
     <br>    
     </div>
@@ -300,9 +305,9 @@ async function loadAllCategories() {
     const tempo = await tempoRes.json();
 
     // Gem i strukturen
-    data.genres = genres.map(x => ({ label: x.genre_name, type: "Genres" }));
-    data.mood = mood.map(x => ({ label: x.mood_name, type: "Mood" }));
-    data.tempo = tempo.map(x => ({ label: x.tempo_name, type: "Tempo" }));
+    data.genres = genres.map(x => ({ label: x.genre_name, type: "Genres", id: x.genre_id }));
+    data.mood = mood.map(x => ({ label: x.mood_name, type: "Mood", id: x.mood_id}));
+    data.tempo = tempo.map(x => ({ label: x.tempo_name, type: "Tempo", id: x.tempo_id }));
 
     // All = alt fra alle kategorier
     data.all = [
@@ -336,7 +341,7 @@ function renderList(type) {
         `;
 
         el.onclick = () => {
-            userSuggestsAttribute(item.type, item.label);
+            userSuggestsAttribute(item.type, item.label, item.id);
         };
 
         listContainer.appendChild(el);

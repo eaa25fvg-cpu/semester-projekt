@@ -50,7 +50,7 @@ server.use(onEachRequest);
 server.post('/api/create-party', onCreateParty)
 server.post('/api/room/:room_id/:user_id/skip-song', onSkipSong)
 server.post('/api/room/:room_id/createUser', onCreateUser);
-server.post('api/room/:room_id/:user_id/select-attribute', onSelectAttribute)
+server.post('/api/room/:room_id/:user_id/select-attribute', onSelectAttribute)
 server.get('/api/room/:room_id/:user_id', onGetRoom)
 server.get('/api/theme', getAllTheme);
 server.get('/api/genre', getAllGenre);
@@ -697,22 +697,22 @@ async function addEvent(roomId, userId, eventMesssage) {
 
 
 async function onSelectAttribute(request, response) {
-    roomId = request.params.room_id;
-    userId = request.params.user_id;
+    const roomId = request.params.room_id;
+    const userId = request.params.user_id;
 
-    attributeType = request.body.attribute.type;
-    attributeName = request.body.attribute.name;
-    attributeValue = request.body.attibute.id;
+    const { type, value, name } = request.body.attribute;
 
-    const columnNames = `user_id, session_id, ${attributeType}`;
-    const columnValues = `${userId},${roomId}, ${attributeValue}`;
+    const query = `
+        INSERT INTO user_activity (user_id, session_id, ${type})
+        VALUES ($1, $2, $3)
+    `;
 
-    const dbResult = await db.query(`
-        INSERT INTO user_activity ($1)
-        VALUES ($2)
-        `,[columnNames, columnValues]);
-    
-    addEvent(roomId, userId, `har tilføjet mere ${attributeName}`)
-
-    response.status(200)
+    try {
+        await db.query(query, [userId, roomId, value]);
+        addEvent(roomId, userId, `har tilføjet mere ${name}`);
+        return response.status(200).send({ ok: true });
+    } catch (err) {
+        console.error("DB Error:", err);
+        return response.status(500).send({ error: "Database error" });
+    }
 }

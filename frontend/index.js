@@ -296,7 +296,7 @@ value: id
 */
 async function addAttribute(roomId, attribute) {
     const userId = localStorage.getItem("userId");
-    const response = await fetch(`api/room/${roomId}/${userId}/select-attribute`, {
+    const response = await fetch(`/api/room/${roomId}/${userId}/select-attribute`, {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json'

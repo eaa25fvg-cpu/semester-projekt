@@ -41,10 +41,12 @@ await db.query(`
 	create table user_activity(
 	user_activity_id int primary key generated always as identity,
 	user_id int references session_users(session_users_id),
-	genre text,
-	tempo text,
-	theme text,
-	mood text
+	session_id int references sessions(sessions_id),
+	genre int,
+	tempo int,
+	theme int,
+	mood int
+
 	)
 `);
 

@@ -136,40 +136,7 @@ async function handleSkip() {
 }
 
 
-async function skipToNextSong(roomId) {
-    const room = roomState.get(roomId);
-    
-    if (!room) return;
 
-    try {
-        // Hvis der er sange i queue, tag den første
-        if (room.songQueue && room.songQueue.length > 0) {
-            room.currentSong = room.songQueue.shift();
-        } else {
-            // Ellers hent en ny random sang baseret på roomets theme
-            const themeResult = await db.query(
-                `SELECT room_theme FROM sessions WHERE sessions_id = $1`,
-                [roomId]
-            );
-            
-            if (themeResult.rows.length > 0) {
-                const theme = themeResult.rows[0].room_theme;
-                const newSong = await getRandomSong(theme);
-                room.currentSong = newSong;
-                
-                // Opdater også databasen
-                await db.query(
-                    `UPDATE sessions SET current_song = $1 WHERE sessions_id = $2`,
-                    [newSong.songs_id, roomId]
-                );
-            }
-        }
-        
-        console.log(`Skipped to next song in room ${roomId}`);
-    } catch (error) {
-        console.error('Error in skipToNextSong:', error);
-    }
-}
 
 function userSuggestsAttribute (type, value) {
     
@@ -261,7 +228,7 @@ function updateProgressBar(player) {
     const startTime = player.startTime; // ms fra server
     const duration = player.currentSong.duration; // ms
 
-    // Hvor langt inde i sangen er vi i sekunder)
+    // Hvor langt inde i sangen er vi i sekunder
     const elapsedSec = Math.floor((now - startTime) / 1000);
 
     // Sangens længde i sekunder

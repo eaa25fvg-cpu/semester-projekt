@@ -423,7 +423,7 @@ label {
     cursor: copy;
     display: flex;
     padding: 10px;
-    justify-content: center;
+    justify-content: flex-start;
     align-items: center;
     gap: 10px;
     align-self: stretch;
@@ -433,6 +433,13 @@ label {
 
 .code-wrapper:hover {
     background: rgba(255, 255, 255, 0.12);
+}
+
+.code-wrapper p {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 100%;
 }
 
 form {

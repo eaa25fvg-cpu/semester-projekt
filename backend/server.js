@@ -137,39 +137,78 @@ async function onSkipSong(request, response) {
         const roomId = parseInt(request.params.room_id);
         const userId = parseInt(request.params.user_id);
 
-        const room = roomState.get(roomId);
-        
-        if (!room) {
-            return response.status(404).json({ error: "Room not found" });
+        // Hent player
+        const player = players.get(roomId);
+        if (!player) {
+            return response.status(404).json({ error: "Player not found" });
         }
 
-        // Initialiser skipRequests hvis det ikke findes
-        if (!room.skipRequests) {
-            room.skipRequests = [];
+        // Sørg for skipRequests findes i player
+        if (!player.skipRequests) player.skipRequests = [];
+
+        // Hent aktive brugere
+        const activeUsers = getActiveUsersInRoom(roomId);
+        const userCount = activeUsers.length;
+
+        if (userCount === 0) {
+            return response.json({ success: false, error: "No active users" });
         }
 
-        // Check om brugeren allerede har stemt
-        const hasVoted = room.skipRequests.includes(userId);
+        // Tjek om brugeren har stemt
+        const hasVoted = player.skipRequests.includes(userId);
 
+        // Toggle stemme direkte på player
         if (hasVoted) {
-            // Fjern stemme
-            room.skipRequests = room.skipRequests.filter(id => id !== userId);
+            player.skipRequests = player.skipRequests.filter(id => id !== userId);
         } else {
-            // Tilføj stemme
-            room.skipRequests.push(userId);
+            player.skipRequests.push(userId);
         }
 
-        // Send tilbage
-        response.json({
+        // Antal stemmer
+        const currentVotes = player.skipRequests.length;
+        const votesNeeded = Math.ceil(userCount / 2);
+        const shouldSkip = currentVotes >= votesNeeded;
+
+        // --- SKIP PERFORMED ---
+        if (shouldSkip) {
+
+            // Skip sang gennem playerHandler
+            await playerHandler(roomId, "skip");
+
+            // Hent opdateret player
+            const updatedPlayer = players.get(roomId);
+
+            // Nulstil stemmer
+            updatedPlayer.skipRequests = [];
+            players.set(roomId, updatedPlayer);
+
+            return response.json({
+                success: true,
+                skipped: true,
+                skipVotes: 0,
+                totalUsers: userCount,
+                hasVoted: false,
+                newSong: updatedPlayer.currentSong
+            });
+        }
+
+        // --- IKKE NOK STEMMER ENNU ---
+        players.set(roomId, player);
+
+        return response.json({
             success: true,
-            skipVotes: room.skipRequests.length
+            skipped: false,
+            skipVotes: player.skipRequests.length,
+            totalUsers: userCount,
+            hasVoted: player.skipRequests.includes(userId)
         });
-        
+
     } catch (error) {
-        console.error('Error in onSkipSong:', error);
+        console.error("Error in onSkipSong:", error);
         response.status(500).json({ error: "Server error" });
     }
 }
+
 
 async function onCreateUser(request, response) {
     try{

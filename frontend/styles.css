@@ -875,12 +875,6 @@ form {
 
 @media (max-width: 768px) {
 
-    .ph-bold.ph-thumbs-down,
-    .ph-bold.ph-thumbs-up {
-        padding: 0;
-        margin: 0;
-    }
-
     .inline-container div {
         gap: 6px;
         margin: 10px;

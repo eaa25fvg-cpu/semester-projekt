@@ -349,6 +349,9 @@ function renderList(type) {
        
         el.onclick = () => {
             addAttribute(roomId, attribute)
+                .then(() => {
+                    searchModal.classList.add("hidden");
+                });
         };
 
         listContainer.appendChild(el);

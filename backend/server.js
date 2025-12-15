@@ -680,19 +680,58 @@ async function getEvent(roomId) {
     
 }
 
-async function addEvent(roomId, userId, eventMesssage) {
+async function addEvent(roomId, userId, eventMessage) {
+    const roomKey = parseInt(roomId);
+    const userKey = parseInt(userId);
 
-    const userName = activeUsers.get(userId).name;
-    const userAvatar = activeUsers.get(userId).profile_image;
-    const event = `${userName} ${eventMesssage}`;
+    let userName = 'Someone';
+    let userAvatar = null;
+
+    try {
+        // activeUsers is a Map keyed by roomId -> Map(userId -> userData)
+        const roomUsers = activeUsers.get(roomKey);
+        if (roomUsers && roomUsers.has(userKey)) {
+            const u = roomUsers.get(userKey);
+            userName = u.name || userName;
+            userAvatar = u.profile_image || userAvatar;
+        } else {
+            // optional fallback: try DB lookup (non-breaking if DB lookup fails)
+            try {
+                const res = await db.query(
+                    `SELECT name, profile_image FROM session_users WHERE session_users_id = $1`,
+                    [userKey]
+                );
+                if (res.rows.length > 0) {
+                    userName = res.rows[0].name || userName;
+                    userAvatar = res.rows[0].profile_image || userAvatar;
+                }
+            } catch (dbErr) {
+                // ignore DB errors here; we already have a safe fallback name/avatar
+                console.warn("addEvent DB fallback failed:", dbErr);
+            }
+        }
+    } catch (err) {
+        console.error("addEvent lookup error:", err);
+    }
+
+    const event = `${userName} ${eventMessage || ''}`;
 
     const eventObject = {
-        userId: userId,
+        userId: userKey,
         userAvatar: userAvatar,
         event: event,
         timestamp: Date.now()
+    };
+
+    // Ensure room object and events array exist
+    let room = roomState.get(roomKey);
+    if (!room) {
+        room = createRoomObject(`Room ${roomKey}`);
+        roomState.set(roomKey, room);
     }
-    roomState.get(roomId).events.push(eventObject)
+    if (!Array.isArray(room.events)) room.events = [];
+
+    room.events.push(eventObject);
 }
 
 
@@ -700,7 +739,9 @@ async function onSelectAttribute(request, response) {
     const roomId = request.params.room_id;
     const userId = request.params.user_id;
     const attribute = request.body.attribute || {};
-    const { type, value, name } = attribute;
+    const type = attribute.type;
+    const value = attribute.value;
+    const name = attribute.name;
 
     if (!type || value === undefined) {
         return response.status(400).send({ error: "Missing attribute type or value" });

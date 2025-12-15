@@ -91,7 +91,8 @@ async function renderRoom(roomId) {
         const totalUsers = data.users.length; 
         document.getElementById("active-user-count").textContent = `${totalUsers} ${totalUsers === 1 ? "lytter" : "lyttere"}`;
 
-        const skipVotes = data.room.skipRequests ? data.room.skipRequests.length : 0;
+        const skipVotes = data.player.skipRequests ? data.player.skipRequests.length : 0;
+
         document.getElementById("skip-count").textContent = `${skipVotes}/${totalUsers}`;
 
         const skipButton = document.getElementById("skipButton");
@@ -125,7 +126,7 @@ async function handleSkip() {
         });
         
         const data = await response.json();
-        
+         
         if (data.success) {
             // Refresh hele rummet for at få opdateret data
             await renderRoom(roomId);

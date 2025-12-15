@@ -349,7 +349,7 @@ function renderList(type) {
        
         el.onclick = () => {
             console.log(roomId, attribute);
-            addAttribute(roomId, attribute);
+            addAttribute(roomId, attribute)
                 .then(() => {
                     searchModal.classList.add("hidden");
                 });

@@ -85,6 +85,9 @@ async function renderRoom(roomId) {
         // Update queue
         renderQueue(data.player.songQueue)
 
+        // Opdater Events
+        renderEvents(data.room.events)
+
         // Update active user elements
         updateActiveUsers(data.users)
 
@@ -136,12 +139,6 @@ async function handleSkip() {
 }
 
 
-
-
-function userSuggestsAttribute (type, value) {
-    
-}
-
 window.onload = function () {
     const parts = window.location.pathname.split('/');
     const roomId = parts[2]; // henter roomId fra URL'en
@@ -189,6 +186,53 @@ function renderQueue(queue) {
         .join("");
 
     parent.innerHTML = html;
+}
+
+function renderEvents(events) {
+        const container = document.getElementById("event-list");
+        if (!container) return;
+    
+        // Clear previous events
+        container.innerHTML = "";
+    
+        if (!Array.isArray(events) || events.length === 0) return;
+    
+        // Show newest events first
+        const list = events.slice().reverse();
+    
+        const now = Date.now();
+    
+        for (const ev of list) {
+            const userAvatar = ev.userAvatar || '';
+            // Try to extract user name from ev.event by taking the first token before a space
+            const eventText = ev.event || '';
+    
+            const minutesAgo = Math.floor((now - (ev.timestamp || now)) / 60000);
+            const timeText = `${minutesAgo} minutter siden`;
+    
+            const item = document.createElement("div");
+            item.className = "event-item";
+    
+            const left = document.createElement("div");
+            left.className = "event-left";
+    
+            const img = document.createElement("img");
+            img.src = userAvatar;
+            left.appendChild(img);
+    
+            const nameP = document.createElement("p");
+            nameP.textContent = eventText;
+            left.appendChild(nameP);
+    
+            const timeP = document.createElement("p");
+            timeP.className = "secondary"
+            timeP.textContent = timeText;
+    
+            item.appendChild(left);
+            item.appendChild(timeP);
+    
+            container.appendChild(item);
+        }
 }
 
 let progressAnimationId = null;
@@ -295,7 +339,7 @@ value: id
 }
 */
 async function addAttribute(roomId, attribute) {
-    const userId = localStorage.getItem("userId");
+    const userId = parseInt(localStorage.getItem("userId"));
     const response = await fetch(`/api/room/${roomId}/${userId}/select-attribute`, {
         method: 'POST',
         headers: {

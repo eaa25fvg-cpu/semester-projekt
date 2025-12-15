@@ -11,9 +11,9 @@ h2 {
 }
 
 #room-name {
-    font-size: 18px;
-    font-weight: 600;
-    line-height: normal;
+    font-family: Arial, sans-serif;
+    font-size: 16px;
+    line-height: 22px;
 }
 
 button {
@@ -860,4 +860,116 @@ form {
 
 .event-item p {
     font-size: 12px;
+}
+
+@media (max-width: 768px) {
+    #user-list {
+        display: none;
+    }
+}
+
+@media (max-width: 768px) {
+
+    .ph-bold.ph-thumbs-down,
+    .ph-bold.ph-thumbs-up {
+        padding: 0;
+        margin: 0;
+    }
+
+    .inline-container div {
+        gap: 6px;
+        margin: 10px;
+    }
+}
+
+
+@media (max-width: 768px) {
+    .content {
+        flex-direction: column;
+    }
+
+    .content .left {
+        border-right: none;
+        padding: 16px;
+    }
+
+    .content .right {
+        width: 100%;
+    }
+}
+
+@media (max-width: 768px) {
+    .cover {
+        width: 100%;
+        max-width: 320px;
+        margin: 0 auto;
+        height: auto;
+    }
+
+    .cover-wrapper {
+        align-items: center;
+    }
+}
+
+@media (max-width: 768px) {
+    .media-player {
+        gap: 8px;
+    }
+
+    .media-player p {
+        font-size: 14px;
+    }
+}
+
+@media (max-width: 768px) {
+    .skip-container {
+        display: none;
+    }
+}
+
+@media (max-width: 768px) {
+    .queue {
+        padding: 16px;
+    }
+
+    .queue-item {
+        padding: 12px 0;
+    }
+}
+
+@media (max-width: 768px) {
+    .inline-container div i {
+        font-size: 32px;
+        padding: 8px;
+    }
+}
+
+@media (max-width: 768px) {
+    .left-container {
+        width: 100%;
+        padding: 16px;   
+    }
+
+    .login-boks {
+        padding: 32px 24px;
+        gap: 32px;
+        width: 85%;
+    }
+
+    .right-container {
+        display: none;
+    }   
+}
+
+@media (max-width: 768px) {
+    .joinroom .center-container {
+        width: 100%;
+        padding: 16px;   
+    }
+
+    .joinroom .center-container .login-boks {
+        padding: 32px 24px;
+        gap: 32px;
+        width: 85%;
+    }
 }

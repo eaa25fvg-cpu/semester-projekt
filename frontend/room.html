@@ -65,31 +65,36 @@
                             <p id="join-code">1234</p>
                         </div>
                     </div>
-                    <script>
-                        document.querySelector('.code-wrapper').addEventListener('click', () => {
-                            const code = document.getElementById('join-code').textContent;
-    
-                           navigator.clipboard.writeText(code).then(() => {
-                                  const codeElement = document.getElementById('join-code');
-                                  const originalText = codeElement.textContent;
-                               codeElement.textContent = 'Kopieret!';
-        
-                              setTimeout(() => {
-                                  codeElement.textContent = originalText;
-                              }, 1500);
-                            }).catch(err => {
-                                console.error('Failed to copy:', err);
-                            });
-                        });
-                    </script>
+            <script>
+            document.addEventListener("DOMContentLoaded", () => {
+                const parts = window.location.pathname.split('/');
+                const roomId = parts[2];
 
-                    <script>
-                        document.addEventListener("DOMContentLoaded", () => {
-                            const roomId = window.location.pathname.split('/')[2];
-                            const inviteUrl = `${window.location.origin}/room/${roomId}/join-room`;
-                            document.getElementById("join-code").textContent = inviteUrl;
-                        });
-                    </script>
+    // Samme URL som QR code
+                const inviteUrl = `${window.location.origin}/room/${roomId}/join-room`;
+
+                const codeElement = document.getElementById("join-code");
+                const wrapper = document.querySelector(".code-wrapper");
+
+    // Viser URL
+                codeElement.textContent = inviteUrl;
+
+    // kopierer samme URL som QR kode
+                wrapper.addEventListener("click", () => {
+                    navigator.clipboard.writeText(inviteUrl).then(() => {
+                        const original = codeElement.textContent;
+                        codeElement.textContent = "Kopieret!";
+
+                        setTimeout(() => {
+                            codeElement.textContent = original;
+                        }, 1500);
+                    }).catch(err => {
+                        console.error("Failed to copy:", err);
+                    });
+                });
+            });
+            </script>
+
 
                 </div>
             </div>
@@ -112,11 +117,11 @@
 
                             <div id="like-dislike">
             <a style="all: unset; cursor: pointer;">
-                <i class="ph-bold ph-thumbs-down" onclick="toggleFill(this)"></i>
+                <i class="ph-bold ph-thumbs-down" onclick="toggleFill(this); sendLike()"></i>
             </a>
 
             <a style="all: unset; cursor: pointer;">
-                <i class="ph-bold ph-thumbs-up" onclick="toggleFill(this)"></i>
+                <i class="ph-bold ph-thumbs-up" onclick="toggleFill(this); sendDislike()"></i>
             </a>
 
             <script>

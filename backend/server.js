@@ -58,7 +58,9 @@ server.get('/api/tempo', getAllTempo);
 server.get('/api/mood', getAllMood);
 server.get('/api/songs', getAllSongs);
 server.get('/room/:room_id/join-room', redirectJoin);
-server.get('/room/:room_id', redirectRoom); 
+server.get('/room/:room_id', redirectRoom);
+server.post('/api/room/:room_id/:user_id/song_like', onLikeSong)
+server.post('/api/room/:room_id/:user_id/song_dislike', onDislikeSong)  
 // server.get('/api/next-song/user/:sessionId', getNextSongWithUserActivity);
 server.listen(port, onServerReady);
 
@@ -163,6 +165,8 @@ async function onSkipSong(request, response) {
         } else {
             player.skipRequests.push(userId);
         }
+
+        addEvent(roomId, userId, "ønsker at skippe")
 
         // Antal stemmer
         const currentVotes = player.skipRequests.length;
@@ -676,10 +680,6 @@ async function playerHandler(roomId, action = "status") {
     return true;
 }
 
-async function getEvent(roomId) {
-    
-}
-
 async function addEvent(roomId, userId, eventMessage) {
     const roomKey = parseInt(roomId);
     const userKey = parseInt(userId);
@@ -762,4 +762,23 @@ async function onSelectAttribute(request, response) {
         console.error("DB Error:", err);
         return response.status(500).send({ error: "Database error" });
     }
+}
+
+
+function onLikeSong(request, response) {
+    const roomId = request.params.room_id;
+    const userId = request.params.user_id;
+
+    addEvent(roomId, userId, "har liket sangen")
+
+    response.sendStatus(200);
+}
+
+function onDislikeSong(request, response) {
+    const roomId = request.params.room_id;
+    const userId = request.params.user_id;
+
+    addEvent(roomId, userId, "har disliket sangen")
+
+    response.sendStatus(200);
 }

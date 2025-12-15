@@ -866,6 +866,11 @@ form {
     #user-list {
         display: none;
     }
+
+    .song-wrapper {
+        width: 100%;
+    }
+
 }
 
 @media (max-width: 768px) {
@@ -901,8 +906,6 @@ form {
 @media (max-width: 768px) {
     .cover {
         width: 100%;
-        max-width: 320px;
-        margin: 0 auto;
         height: auto;
     }
 

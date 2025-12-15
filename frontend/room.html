@@ -305,9 +305,9 @@ async function loadAllCategories() {
     const tempo = await tempoRes.json();
 
     // Gem i strukturen
-    data.genres = genres.map(x => ({ label: x.genre_name, type: "genres", id: x.genre_id }));
-    data.mood = mood.map(x => ({ label: x.mood_name, type: "mood", id: x.mood_id}));
-    data.tempo = tempo.map(x => ({ label: x.tempo_name, type: "tempo", id: x.tempo_id }));
+    data.genres = genres.map(x => ({ label: x.genre_name, type: "Genre", id: x.genre_id }));
+    data.mood = mood.map(x => ({ label: x.mood_name, type: "Mood", id: x.mood_id}));
+    data.tempo = tempo.map(x => ({ label: x.tempo_name, type: "Tempo", id: x.tempo_id }));
 
     // All = alt fra alle kategorier
     data.all = [
@@ -348,7 +348,8 @@ function renderList(type) {
         };
        
         el.onclick = () => {
-            addAttribute(roomId, attribute)
+            console.log(roomId, attribute);
+            addAttribute(roomId, attribute);
                 .then(() => {
                     searchModal.classList.add("hidden");
                 });

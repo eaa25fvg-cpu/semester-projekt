@@ -11,9 +11,9 @@ h2 {
 }
 
 #room-name {
-    font-size: 18px;
-    font-weight: 600;
-    line-height: normal;
+    font-family: Arial, sans-serif;
+    font-size: 16px;
+    line-height: 22px;
 }
 
 button {

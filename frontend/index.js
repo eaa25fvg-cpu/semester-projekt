@@ -348,3 +348,23 @@ async function addAttribute(roomId, attribute) {
         body: JSON.stringify({attribute: attribute})
     });
 }
+
+async function sendDislike() {
+    const roomId = window.location.pathname.split('/')[2];
+    const userId = parseInt(localStorage.getItem("userId"));
+
+    const response = await fetch(`/api/room/${roomId}/${userId}/song_dislike`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' }
+    });;
+}
+
+async function sendLike() {
+    const roomId = window.location.pathname.split('/')[2];
+    const userId = parseInt(localStorage.getItem("userId"));
+
+    const response = await fetch(`/api/room/${roomId}/${userId}/song_like`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' }
+    });;;
+}

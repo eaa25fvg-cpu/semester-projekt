@@ -828,12 +828,16 @@ form {
     flex-direction: column;
     gap: 12px;
     padding: 20px;
+    height: 300px;/*ny*/
 }
 
 #event-list {
     display: flex;
     flex-direction: column;
     gap: 8px;
+    flex: 1;/*ny*/
+    overflow-y: auto; /*ny*/
+    padding-right: 6px; /*ny*/
 }
 
 .event-item {

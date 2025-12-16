@@ -15,7 +15,7 @@ async function createRoom(name, theme) {
         const data = await response.json();
         const roomId = data.room_id;
 
-        // Redirect to join-room page
+        // Sender dig til Joinroom
         window.location.href = `/room/${roomId}/join-room`;
         
     } catch (error) {
@@ -26,7 +26,7 @@ async function createRoom(name, theme) {
 
 
 async function createUser(name, avatar, roomId) {
-    // Request to backend to create user
+    // forspørgsel til backend for at oprette en user
     const response = await fetch(`/api/room/${roomId}/createUser`, {
         method: "POST",
         headers: {"content-type": "application/json"},
@@ -67,11 +67,11 @@ async function renderRoom(roomId) {
         console.log("Data:", data);
         console.log("Users:", data.users);
 
-        // Update room title
+        // opdater rum titel
         document.getElementById("room-name").textContent = data.room.roomName;
 
 
-        // Update current song
+        // opdater nuværende sang
         let s = data.player.currentSong
         // Start/Opdater progress-knob
         updateProgressBar(data.player);
@@ -82,13 +82,13 @@ async function renderRoom(roomId) {
         document.getElementById("song-title").textContent = s.song_name;
         document.getElementById("song-artist").textContent = s.artist;
 
-        // Update queue
+        // opdater kø
         renderQueue(data.player.songQueue)
 
         // Opdater Events
         renderEvents(data.room.events)
 
-        // Update active user elements
+        // opdater aktive user elementer
         updateActiveUsers(data.users)
 
         const totalUsers = data.users.length; 
@@ -153,7 +153,7 @@ function renderQueue(queue) {
     const parent = document.getElementById("queue-list");
     if (!parent) return;
 
-    // Clear previous queue to avoid duplication
+    // ryd forrige kø for at undgå duplikation 
     parent.innerHTML = "";
 
     if (!Array.isArray(queue) || queue.length === 0) return;
@@ -193,19 +193,19 @@ function renderEvents(events) {
         const container = document.getElementById("event-list");
         if (!container) return;
     
-        // Clear previous events
+        // ryd forrige events
         container.innerHTML = "";
     
         if (!Array.isArray(events) || events.length === 0) return;
     
-        // Show newest events first
+        // viser nyeste events først
         const list = events.slice().reverse();
     
         const now = Date.now();
     
         for (const ev of list) {
             const userAvatar = ev.userAvatar || '';
-            // Try to extract user name from ev.event by taking the first token before a space
+            // Prøv at udtrække brugernavnet fra ev.event ved at tage det første element før et mellemrum.
             const eventText = ev.event || '';
     
             const minutesAgo = Math.floor((now - (ev.timestamp || now)) / 60000);
@@ -301,7 +301,7 @@ function updateActiveUsers(users) {
     for (let i = 0; i < users.length && i < 3; i++) {
         const user = users[i];
 
-        // Create elements
+        // lav elements
         const item = document.createElement("div");
         item.className = "user-item";
 
@@ -320,7 +320,7 @@ function updateActiveUsers(users) {
         roleEl.className = "user-role";
         roleEl.textContent = "Lytter";
 
-        // Build structure
+        // Byg struktur
         textWrapper.appendChild(nameEl);
         textWrapper.appendChild(roleEl);
 

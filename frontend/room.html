@@ -126,7 +126,7 @@
 
             <script>
                 function toggleFill(icon) {
-    // like/dislike filled
+    // like/dislike fylder
     icon.style.setProperty("color", "white", "important");
     
     if (icon.classList.contains("ph-bold")) {
@@ -214,13 +214,13 @@
         const trigger = document.getElementById('invite-btn');
         const dropdown = document.getElementById('join-dropdown');
 
-        // Toggle dropdown on trigger click
+        // Skift (toggle) dropdown-menuen ved klik på triggeren
         trigger.addEventListener('click', (e) => {
-        e.stopPropagation(); // Prevent click from bubbling to document
+        e.stopPropagation(); // Forhindr klik i at boble videre til dokumentet
         dropdown.classList.toggle('open');
         });
 
-        // Close dropdown when clicking outside
+        // luk dropdown når man klikker udenfor
         document.addEventListener('click', (e) => {
         if (!dropdown.contains(e.target) && !trigger.contains(e.target)) {
             dropdown.classList.remove('open');
@@ -298,7 +298,7 @@ const data = {
     tempo: []
 };
 
-// 1️⃣ Hent alle API-data (kun tempo, mood, genres)
+//  Hent alle API-data (kun tempo, mood, genres)
 async function loadAllCategories() {
     const genresRes = await fetch("/api/genre");
     const genres = await genresRes.json();
@@ -324,7 +324,7 @@ async function loadAllCategories() {
     renderList("all");
 };
 
-// 2️⃣ Render funktion — super simpel
+// Render funktion 
 function renderList(type) {
     listContainer.innerHTML = "";
 
@@ -365,7 +365,7 @@ function renderList(type) {
 }
 
 
-// 3️⃣ Filter-knap klik
+//  Filter-knap klik
 filterButtons.forEach(btn => {
     btn.addEventListener("click", () => {
 
@@ -377,7 +377,7 @@ filterButtons.forEach(btn => {
     });
 });
 
-// 4️⃣ Hent data når modal åbnes
+//  Hent data når modal åbnes
 document.getElementById("more-options").addEventListener("click", async () => {
     document.getElementById("search-modal").classList.remove("hidden");
 

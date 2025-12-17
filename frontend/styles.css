@@ -303,7 +303,7 @@ label {
     width: 0%;
     background: white;
     border-radius: 99px, 0px, 0px, 99px;
-    transition: none;   /* ⬅ smooth linear animation */
+    transition: none;   
 }
 
 
@@ -479,10 +479,6 @@ form {
 }
 
 
-/* --------------------------------------------- */
-/* RIGHT SIDE — PLAYER MOCKUP LAYOUT + GRADIENT  */
-/* --------------------------------------------- */
-
 /* Højre side */
 .right-container {  
     width: 60%;
@@ -494,7 +490,6 @@ form {
     justify-content: center; /* Mockup og tekst centreres */
     text-align: center;
     gap: 24px;
-
     overflow: hidden; /* Ingen scroll */
 }
 
@@ -514,7 +509,7 @@ form {
 .promo-text h1 {
     font-size: 36px;
     font-weight: 700;
-    color: #0C1B33; /* Mørk blå tekst som i design */
+    color: #0C1B33; 
     margin: 0;
     font-family: 'Inter', sans-serif;
 }
@@ -677,7 +672,7 @@ form {
 }
 
 .skip-text {
-    color: var(--Primary, #FFF);
+    color: #fff;
     font-family: Inter;
     font-size: 18.461px;
     font-style: normal;
@@ -828,16 +823,16 @@ form {
     flex-direction: column;
     gap: 12px;
     padding: 20px;
-    height: 300px;/*ny*/
+    height: 300px;
 }
 
 #event-list {
     display: flex;
     flex-direction: column;
     gap: 8px;
-    flex: 1;/*ny*/
-    overflow-y: auto; /*ny*/
-    padding-right: 6px; /*ny*/
+    flex: 1;
+    overflow-y: auto; 
+    padding-right: 6px; 
 }
 
 .event-item {

@@ -71,11 +71,12 @@ async function renderRoom(roomId) {
         document.getElementById("room-name").textContent = data.room.roomName;
 
 
-        // opdater nuværende sang
-        let s = data.player.currentSong
         // Start/Opdater progress-knob
         updateProgressBar(data.player);
         songTime(data.player);
+
+        // opdater nuværende sang
+        let s = data.player.currentSong
 
 
         document.getElementById("song-cover").src = s.cover_image;
@@ -113,8 +114,7 @@ async function renderRoom(roomId) {
   }  
 
 async function handleSkip() {
-    const roomId = new URLSearchParams(window.location.search).get('room_id') || 
-                   window.location.pathname.split('/')[2];
+    const roomId = window.location.pathname.split('/')[2];
     const userId = localStorage.getItem("userId");
     
     if (!userId || !roomId) {

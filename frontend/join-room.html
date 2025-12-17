@@ -98,10 +98,10 @@
          avatars.forEach(avatar => {
             avatar.addEventListener('click', () => {
                 console.log('Avatar clicked')
-                // Remove active from all
+                // fjern aktivt fra alle
                 avatars.forEach(a => a.classList.remove('active'));
 
-                // Add active to the clicked one
+                // tilføj aktive til den valgte
                 avatar.classList.add('active');
 
                 chosenAvatar.id = avatar.id

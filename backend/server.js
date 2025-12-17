@@ -123,7 +123,7 @@ async function onSkipSong(request, response) {
         const votesNeeded = Math.ceil(userCount / 2);
         const shouldSkip = currentVotes >= votesNeeded;
 
-        // --- SKIP PERFORMED ---
+        // --- SKIP aktiveret ---
         if (shouldSkip) {
 
             // Skip sang gennem playerHandler
@@ -146,7 +146,7 @@ async function onSkipSong(request, response) {
             });
         }
 
-        // --- IKKE NOK STEMMER ENNU ---
+        // --- IKKE NOK STEMMER ENDNU ---
         players.set(roomId, player);
 
         return response.json({
@@ -317,38 +317,35 @@ function createRoomObject(roomName = "Et Rum") {
         );
 
         if (result.rows.length === 0) {
-            return null; // No song found for this theme
+            return null; // ingen sang fundet for dette tema
         }
 
-        return result.rows[0]; // Return the song data
+        return result.rows[0]; // Returner sang data
     } catch (error) {
         console.error("Error in getRandomSong:", error);
-        throw error; // Let the calling function handle the error
+        throw error; 
     }
 }
 
-
-
-// Add better error handling and fallback to getRandomSong:
-
+//
 async function getSongByAttributes(roomId) {
     const sessionId = roomId;
 
     try {
-        // 1. Find sessionens tema
+        // Find sessionens tema
         const sessionResult = await db.query(
             `SELECT room_theme FROM sessions WHERE sessions_id = $1`,
             [sessionId]
         );
 
         if (sessionResult.rows.length === 0) {
-            console. error("Session findes ikke:", sessionId);
+            console.error("Session findes ikke:", sessionId);
             return null;
         }
 
         const roomTheme = sessionResult.rows[0].room_theme;
 
-        // 2. Hent alle sange som matcher temaet
+        // Hent alle sange som matcher temaet
         const songsResult = await db.query(
             `
             SELECT
@@ -380,7 +377,7 @@ async function getSongByAttributes(roomId) {
             return null;
         }
 
-        // 3. Hent alle user_activity for brugerne i sessionen
+        // Hent alle user_activity for brugerne i sessionen
         const activityResult = await db.query(
             `
             SELECT ua.genre, ua.tempo, ua.mood
@@ -393,14 +390,14 @@ async function getSongByAttributes(roomId) {
 
         const activity = activityResult.rows;
 
-        // 4. Hvis ingen har valgt noget → fallback til random
+        // Hvis ingen har valgt noget → fallback til random
         if (activity.length === 0) {
             const randomSong = songs[Math.floor(Math.random() * songs.length)];
             console.log(`No user activity, returning random song: ${randomSong. song_name}`);
             return randomSong;
         }
 
-        // 5. Tæl stemmer fra user_activity
+        // Tæl stemmer fra user_activity
         const votes = { genre: {}, tempo: {}, mood: {} };
 
         for (const act of activity) {
@@ -409,7 +406,7 @@ async function getSongByAttributes(roomId) {
             if (act.mood)  votes.mood[act.mood]  = (votes.mood[act.mood]  || 0) + 1;
         }
 
-        // 6. Beregn score for hver sang
+        // Beregn score for hver sang
         let bestScore = -1;
         let bestSongs = [];
 
@@ -428,7 +425,7 @@ async function getSongByAttributes(roomId) {
             }
         }
 
-        // 7. Delvist random:  vælg tilfældigt mellem topscorerne
+        // Delvist random:  vælg tilfældigt mellem topscorerne
         const chosen = bestSongs[Math.floor(Math.random() * bestSongs.length)];
         console.log(`Selected song based on user activity: ${chosen.song_name}, score: ${bestScore}`);
         
@@ -453,9 +450,7 @@ async function getSongByAttributes(roomId) {
 }
 
 // Active User Hearbeat Functions
-
-
-// Get active users and clean up inactive ones
+// Hent aktive brugere og slet inaktive
 function getActiveUsersInRoom(roomId) {
     if (!activeUsers.has(roomId)) {
         return [];
@@ -465,7 +460,7 @@ function getActiveUsersInRoom(roomId) {
     const now = Date.now();
     const activeUsersList = [];
     
-    // Filter out inactive users and return active ones
+    // filtrer de inaktive brugere fra, og tilføj de aktive
     for (const [userId, userData] of roomUsers. entries()) {
         if (now - userData.lastSeen < 10000) {
             activeUsersList.push({
@@ -475,7 +470,7 @@ function getActiveUsersInRoom(roomId) {
                 lastSeen: userData. lastSeen
             });
         } else {
-            // Remove inactive user
+            // Fjern inaktive bruger
             console.log(`User ${userId} timed out in room ${roomId}`);
             roomUsers.delete(userId);
         }
@@ -484,7 +479,7 @@ function getActiveUsersInRoom(roomId) {
     return activeUsersList;
 }
 
-// Update user's last seen timestamp (heartbeat)
+// Opdater brugerens seneste heartbeat
 async function updateUserHeartbeat(roomId, userId) {
     if (!activeUsers.has(roomId)) {
         activeUsers.set(roomId, new Map());
@@ -493,7 +488,7 @@ async function updateUserHeartbeat(roomId, userId) {
     const roomUsers = activeUsers.get(roomId);
     
     if (!roomUsers.has(userId)) {
-        // Fetch user details from database first time
+        // Hent brugeren informationer fra databasen
         try {
             const userResult = await db.query(`
                 SELECT session_users_id, name, profile_image
@@ -518,7 +513,7 @@ async function updateUserHeartbeat(roomId, userId) {
             return false;
         }
     } else {
-        // Just update last seen timestamp
+        // Opdater sidste timestamp
         const user = roomUsers.get(userId);
         user.lastSeen = Date.now();
     }
@@ -547,7 +542,7 @@ async function playerHandler(roomId, action = "status") {
         if (Date.now() >= startTime + duration) {
             console.log(`Song finished in room ${roomId}, moving to next song`);
             
-            // Remove the current song from queue (it's the first one)
+            // Fjern nuværende sang fra køen
             songQueue.shift();
             
             // Få næste sang fra queue
@@ -555,7 +550,7 @@ async function playerHandler(roomId, action = "status") {
                 currentSong = songQueue[0];
             } else {
                 console.error(`Queue is empty for room ${roomId}`);
-                // Fallback: get a random song
+                // Fallback: Hent tilfældig sang
                 const room = roomState.get(roomId);
                 if (room && room.currentSong) {
                     newSong = await getSongByAttributes(roomId);
@@ -617,7 +612,7 @@ async function playerHandler(roomId, action = "status") {
         return false;
     }
 
-    // Update player state
+    // Opdater player state
     player.startTime = startTime;
     player.songQueue = songQueue;
     player.currentSong = currentSong;

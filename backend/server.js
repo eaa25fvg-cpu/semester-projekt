@@ -1,45 +1,13 @@
 import express from 'express';
 import path from 'path';
 import { connect } from '../db/connect.js';
-// import { play } from './player.js';
-import { get } from 'http';
 
 const db = await connect();
-/*
-const tracks = await loadTracks();
-const currentTracks = new Map(); // maps partyCode to index in tracks
-*/
 
 // In-Memory States
 const roomState = new Map();
 const activeUsers = new Map();
 const players = new Map();
-
-
-/* 
-
-** Room State Object **
-{
-roomName: ""
-songQueue: [{songItem}]
-currentSong: {songItem}
-events: [{eventObject}]
-}
-
-
-** Song Item Object **
-
-songName: ""
-artist: ""
-coverImage: ""
-duration: ""
-releaseYear: ""
-genre: int
-tempo: int
-theme: int
-mood: int
-*/
-
 
 const port = process.env.PORT || 3003;
 const server = express();
@@ -61,7 +29,6 @@ server.get('/room/:room_id/join-room', redirectJoin);
 server.get('/room/:room_id', redirectRoom);
 server.post('/api/room/:room_id/:user_id/song_like', onLikeSong)
 server.post('/api/room/:room_id/:user_id/song_dislike', onDislikeSong)  
-// server.get('/api/next-song/user/:sessionId', getNextSongWithUserActivity);
 server.listen(port, onServerReady);
 
 function onEachRequest(request, response, next) {
@@ -82,32 +49,15 @@ function onServerReady() {
     console.log('Webserver running on port', port);
 }
 
-async function loadTracks() {
-    const dbResult = await db.query(`
-        select track_id, title, artist, duration
-        from   tracks
-    `);
-    return dbResult.rows;
-}
-
-function pickNextTrackFor(partyCode) {
-    const trackIndex = Math.floor(Math.random() * tracks.length)
-    currentTracks.set(partyCode, trackIndex);
-    const track = tracks[trackIndex];
-    play(partyCode, track.track_id, track.duration, Date.now(), () => currentTracks.delete(partyCode));
-    return trackIndex;
-}
-
-
 async function onGetRoom(request, response) {
     try {
         const roomId = parseInt(request.params.room_id);
         const userId = parseInt(request.params.user_id);
         
-        // Update user's heartbeat (mark as active)
+        // Opdater brugers heartbeat (marker dem som aktiv)
         await updateUserHeartbeat(roomId, userId);
         
-        // Get room state from memory
+        // Få room state fra memory
         const roomItem = roomState.get(roomId);
         
         if (!roomItem) {
@@ -117,7 +67,7 @@ async function onGetRoom(request, response) {
         playerHandler(roomId, "status")
         const playerItem = players.get(roomId)
 
-        // Get active users (automatically cleans up inactive ones)
+        // Få aktive brugere (og fjern inaktive)
         const currentUsers = getActiveUsersInRoom(roomId);
         
         response.json({
@@ -213,7 +163,7 @@ async function onSkipSong(request, response) {
     }
 }
 
-
+// Lav brugeren baseret på brugerinput
 async function onCreateUser(request, response) {
     try{
         const roomId = request.params.room_id;
@@ -236,7 +186,7 @@ async function onCreateUser(request, response) {
     }
 };
 
-
+// Laver rummet
 async function onCreateParty(request, response) {
     try {
         const roomName = request.body.roomName;
@@ -587,20 +537,20 @@ async function playerHandler(roomId, action = "status") {
 
     let startTime = player.startTime;
     const duration = player.currentSong.duration;
-    let songQueue = [... player.songQueue]; // Create a copy to avoid mutation issues
+    let songQueue = [... player.songQueue]; // Arbejd på en midlertidig kopi og gem først ændringerne til sidst
     let currentSong = player.currentSong;
     let skipRequests = player.skipRequests || [];
     let newSong = null;
 
     if (action === "status") {
-        // Check if current song has finished
+        // Check om nuværende sang er færdig
         if (Date.now() >= startTime + duration) {
             console.log(`Song finished in room ${roomId}, moving to next song`);
             
             // Remove the current song from queue (it's the first one)
             songQueue.shift();
             
-            // Get next song from queue
+            // Få næste sang fra queue
             if (songQueue.length > 0) {
                 currentSong = songQueue[0];
             } else {
@@ -616,11 +566,11 @@ async function playerHandler(roomId, action = "status") {
                 }
             }
 
-            // Reset startTime & skip requests
+            // Nulstil startTime og skip requests
             startTime = Date.now();
             skipRequests = [];
 
-            // Add new song to Queue to maintain 3 songs
+            // Tilføj ny sang i queue
             try {
                 newSong = await getSongByAttributes(roomId);
                 if (newSong) {
@@ -637,10 +587,10 @@ async function playerHandler(roomId, action = "status") {
     } else if (action === "skip") {
         console.log(`Skipping song in room ${roomId}`);
         
-        // Remove current song
+        // Fjern nuværende sang fra queue
         songQueue.shift();
         
-        // Get next song
+        // Få næste sang i queue
         if (songQueue.length > 0) {
             currentSong = songQueue[0];
         } else {
@@ -648,11 +598,11 @@ async function playerHandler(roomId, action = "status") {
             return false;
         }
 
-        // Reset startTime & skip requests
+        // Nulstil startTime og skip requests
         startTime = Date.now();
         skipRequests = [];
 
-        // Add new song to Queue
+        // Tilføj ny sang til queue
         try {
             newSong = await getSongByAttributes(roomId);
             if (newSong) {
@@ -688,14 +638,13 @@ async function addEvent(roomId, userId, eventMessage) {
     let userAvatar = null;
 
     try {
-        // activeUsers is a Map keyed by roomId -> Map(userId -> userData)
         const roomUsers = activeUsers.get(roomKey);
         if (roomUsers && roomUsers.has(userKey)) {
             const u = roomUsers.get(userKey);
             userName = u.name || userName;
             userAvatar = u.profile_image || userAvatar;
         } else {
-            // optional fallback: try DB lookup (non-breaking if DB lookup fails)
+            // fallback: laver DB Lookup (Hvis ikke defineret i server-memory)
             try {
                 const res = await db.query(
                     `SELECT name, profile_image FROM session_users WHERE session_users_id = $1`,
@@ -706,7 +655,6 @@ async function addEvent(roomId, userId, eventMessage) {
                     userAvatar = res.rows[0].profile_image || userAvatar;
                 }
             } catch (dbErr) {
-                // ignore DB errors here; we already have a safe fallback name/avatar
                 console.warn("addEvent DB fallback failed:", dbErr);
             }
         }
@@ -723,7 +671,7 @@ async function addEvent(roomId, userId, eventMessage) {
         timestamp: Date.now()
     };
 
-    // Ensure room object and events array exist
+    // Sikrer at rummet eksistere
     let room = roomState.get(roomKey);
     if (!room) {
         room = createRoomObject(`Room ${roomKey}`);
@@ -747,7 +695,7 @@ async function onSelectAttribute(request, response) {
         return response.status(400).send({ error: "Missing attribute type or value" });
     }
 
-    // Direct insert using provided 'type' as column (no mapping, per request)
+    // Laver query til at indsætte det i DB
     const query = `
         INSERT INTO user_activity (user_id, session_id, ${type})
         VALUES ($1, $2, $3)
@@ -755,7 +703,6 @@ async function onSelectAttribute(request, response) {
 
     try {
         await db.query(query, [userId, roomId, value]);
-        // fire a simple event; addEvent is defensive now so it won't crash
         await addEvent(roomId, userId, `har tilføjet mere ${name || ''}`);
         return response.status(200).send({ ok: true });
     } catch (err) {
